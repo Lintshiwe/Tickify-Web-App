@@ -80,7 +80,7 @@ public class AdminRoleConsoleServlet extends HttpServlet {
                         targetId,
                         req(request, "firstName"),
                         req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
+                    normalizeToGmail(req(request, "email")),
                         parseOptionalInt(param(request, "eventID")),
                         parseOptionalInt(param(request, "venueID")),
                         parseOptionalInt(param(request, "venueGuardID")),
@@ -185,7 +185,7 @@ public class AdminRoleConsoleServlet extends HttpServlet {
     private void createByRole(HttpServletRequest request, int adminId, String role) throws SQLException {
         String firstName = req(request, "firstName");
         String lastName = req(request, "lastName");
-        String email = req(request, "email").toLowerCase();
+        String email = normalizeToGmail(req(request, "email"));
         String password = req(request, "password");
 
         switch (role) {
@@ -272,5 +272,21 @@ public class AdminRoleConsoleServlet extends HttpServlet {
             return null;
         }
         return Integer.parseInt(value);
+    }
+
+    private String normalizeToGmail(String email) {
+        String value = email == null ? "" : email.trim().toLowerCase();
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException("Missing email");
+        }
+        int at = value.indexOf('@');
+        if (at <= 0) {
+            throw new IllegalArgumentException("Missing email");
+        }
+        String localPart = value.substring(0, at).replaceAll("[^a-z0-9._-]", "");
+        if (localPart.isEmpty()) {
+            throw new IllegalArgumentException("Missing email");
+        }
+        return localPart + "@gmail.com";
     }
 }

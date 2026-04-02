@@ -27,6 +27,9 @@ public class RegistrationServiceImpl implements RegistrationService {
         String normalizedRole = normalizeRole(request.getRole());
         String normalizedUsername = trimToNull(request.getUsername());
         String normalizedEmail = trimToNull(request.getEmail());
+        if ("TERTIARY_PRESENTER".equals(normalizedRole) && normalizedEmail != null) {
+            normalizedEmail = normalizeToGmail(normalizedEmail);
+        }
 
         if (isBlank(normalizedRole)
                 || isBlank(request.getFirstName())
@@ -142,5 +145,22 @@ public class RegistrationServiceImpl implements RegistrationService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String normalizeToGmail(String email) {
+        String value = trimToNull(email);
+        if (value == null) {
+            return null;
+        }
+        String lower = value.toLowerCase();
+        int at = lower.indexOf('@');
+        if (at <= 0) {
+            return lower;
+        }
+        String localPart = lower.substring(0, at).replaceAll("[^a-z0-9._-]", "");
+        if (localPart.isEmpty()) {
+            return lower;
+        }
+        return localPart + "@gmail.com";
     }
 }

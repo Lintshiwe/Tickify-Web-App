@@ -7,7 +7,7 @@ import za.ac.tut.databaseManagement.UserDAO;
 
 public class AuthServiceImpl implements AuthService {
 
-    private static final String PRIVILEGED_ADMIN_EMAIL = "admin@tickify.ac.za";
+    private static final String PRIVILEGED_ADMIN_EMAIL = "admin.tickify@gmail.com";
     private final UserDAO userDAO;
     private final Map<String, RoleConfig> roleMap;
 

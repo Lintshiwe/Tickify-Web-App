@@ -528,11 +528,11 @@ public class DatabaseInitializer {
         migrateLegacyPasswords(conn, "tertiary_presenter", "tertiaryPresenterID");
 
         // Enforce known seeded credentials so role smoke logins remain reliable.
-        enforceSeededPassword(conn, "admin", "admin@tickify.ac.za", "admin123");
-        enforceSeededPassword(conn, "admin", "thabo@tickify.ac.za", "pass1234");
-        enforceSeededPassword(conn, "admin", "lerato@tickify.ac.za", "pass5678");
-        enforceSeededPassword(conn, "admin", "sipho@tickify.ac.za", "pass9012");
-        enforceSeededPassword(conn, "admin", "nomsa@tickify.ac.za", "pass3456");
+        enforceSeededPassword(conn, "admin", "admin.tickify@gmail.com", "admin123");
+        enforceSeededPassword(conn, "admin", "thabo.tickify@gmail.com", "pass1234");
+        enforceSeededPassword(conn, "admin", "lerato.tickify@gmail.com", "pass5678");
+        enforceSeededPassword(conn, "admin", "sipho.tickify@gmail.com", "pass9012");
+        enforceSeededPassword(conn, "admin", "nomsa.tickify@gmail.com", "pass3456");
 
         enforceSeededPassword(conn, "attendee", "lekwene@student.dut.ac.za", "att001");
         enforceSeededPassword(conn, "attendee", "ntoampi@student.ukzn.ac.za", "att002");
@@ -540,23 +540,23 @@ public class DatabaseInitializer {
         enforceSeededPassword(conn, "attendee", "sosiba@student.uj.ac.za", "att004");
         enforceSeededPassword(conn, "attendee", "mngadi@student.cput.ac.za", "att005");
 
-        enforceSeededPassword(conn, "venue_guard", "guard1@tickify.ac.za", "guard001");
-        enforceSeededPassword(conn, "venue_guard", "guard2@tickify.ac.za", "guard002");
-        enforceSeededPassword(conn, "venue_guard", "guard3@tickify.ac.za", "guard003");
-        enforceSeededPassword(conn, "venue_guard", "guard4@tickify.ac.za", "guard004");
-        enforceSeededPassword(conn, "venue_guard", "guard5@tickify.ac.za", "guard005");
+        enforceSeededPassword(conn, "venue_guard", "guard1.tickify@gmail.com", "guard001");
+        enforceSeededPassword(conn, "venue_guard", "guard2.tickify@gmail.com", "guard002");
+        enforceSeededPassword(conn, "venue_guard", "guard3.tickify@gmail.com", "guard003");
+        enforceSeededPassword(conn, "venue_guard", "guard4.tickify@gmail.com", "guard004");
+        enforceSeededPassword(conn, "venue_guard", "guard5.tickify@gmail.com", "guard005");
 
-        enforceSeededPassword(conn, "event_manager", "mgr1@tickify.ac.za", "mgr001");
-        enforceSeededPassword(conn, "event_manager", "mgr2@tickify.ac.za", "mgr002");
-        enforceSeededPassword(conn, "event_manager", "mgr3@tickify.ac.za", "mgr003");
-        enforceSeededPassword(conn, "event_manager", "mgr4@tickify.ac.za", "mgr004");
-        enforceSeededPassword(conn, "event_manager", "mgr5@tickify.ac.za", "mgr005");
+        enforceSeededPassword(conn, "event_manager", "mgr1.tickify@gmail.com", "mgr001");
+        enforceSeededPassword(conn, "event_manager", "mgr2.tickify@gmail.com", "mgr002");
+        enforceSeededPassword(conn, "event_manager", "mgr3.tickify@gmail.com", "mgr003");
+        enforceSeededPassword(conn, "event_manager", "mgr4.tickify@gmail.com", "mgr004");
+        enforceSeededPassword(conn, "event_manager", "mgr5.tickify@gmail.com", "mgr005");
 
-        enforceSeededPassword(conn, "tertiary_presenter", "pzulu@dut.ac.za", "pres001");
-        enforceSeededPassword(conn, "tertiary_presenter", "dnaidoo@ukzn.ac.za", "pres002");
-        enforceSeededPassword(conn, "tertiary_presenter", "psmith@wits.ac.za", "pres003");
-        enforceSeededPassword(conn, "tertiary_presenter", "dbaloyi@uj.ac.za", "pres004");
-        enforceSeededPassword(conn, "tertiary_presenter", "pjacobs@cput.ac.za", "pres005");
+        enforceSeededPassword(conn, "tertiary_presenter", "pzulu.tickify@gmail.com", "pres001");
+        enforceSeededPassword(conn, "tertiary_presenter", "dnaidoo.tickify@gmail.com", "pres002");
+        enforceSeededPassword(conn, "tertiary_presenter", "psmith.tickify@gmail.com", "pres003");
+        enforceSeededPassword(conn, "tertiary_presenter", "dbaloyi.tickify@gmail.com", "pres004");
+        enforceSeededPassword(conn, "tertiary_presenter", "pjacobs.tickify@gmail.com", "pres005");
     }
 
     private static void migrateLegacyPasswords(Connection conn, String tableName, String idColumn) throws SQLException {
@@ -642,11 +642,11 @@ public class DatabaseInitializer {
         // admin
         PreparedStatement pa = conn.prepareStatement("INSERT INTO admin(firstname,lastname,email,password,eventID) VALUES(?,?,?,?,?)");
         String[][] admins = {
-            {"System","Admin","admin@tickify.ac.za","admin123"},
-            {"Thabo","Nkosi","thabo@tickify.ac.za","pass1234"},
-            {"Lerato","Dlamini","lerato@tickify.ac.za","pass5678"},
-            {"Sipho","Mokoena","sipho@tickify.ac.za","pass9012"},
-            {"Nomsa","Khumalo","nomsa@tickify.ac.za","pass3456"}
+            {"System","Admin","admin.tickify@gmail.com","admin123"},
+            {"Thabo","Nkosi","thabo.tickify@gmail.com","pass1234"},
+            {"Lerato","Dlamini","lerato.tickify@gmail.com","pass5678"},
+            {"Sipho","Mokoena","sipho.tickify@gmail.com","pass9012"},
+            {"Nomsa","Khumalo","nomsa.tickify@gmail.com","pass3456"}
         };
         for (int i = 0; i < 5; i++) {
             pa.setString(1,admins[i][0]); pa.setString(2,admins[i][1]);
@@ -690,11 +690,11 @@ public class DatabaseInitializer {
             "INSERT INTO venue_guard(firstname,lastname,email,password,eventID,venueID,QRcodeID) VALUES(?,?,?,?,?,?,?)",
             Statement.RETURN_GENERATED_KEYS);
         String[][] guards = {
-            {"Guard","Alpha","guard1@tickify.ac.za","guard001"},
-            {"Guard","Bravo","guard2@tickify.ac.za","guard002"},
-            {"Guard","Charlie","guard3@tickify.ac.za","guard003"},
-            {"Guard","Delta","guard4@tickify.ac.za","guard004"},
-            {"Guard","Echo","guard5@tickify.ac.za","guard005"}
+            {"Guard","Alpha","guard1.tickify@gmail.com","guard001"},
+            {"Guard","Bravo","guard2.tickify@gmail.com","guard002"},
+            {"Guard","Charlie","guard3.tickify@gmail.com","guard003"},
+            {"Guard","Delta","guard4.tickify@gmail.com","guard004"},
+            {"Guard","Echo","guard5.tickify@gmail.com","guard005"}
         };
         for (int i = 0; i < 5; i++) {
             pg.setString(1,guards[i][0]); pg.setString(2,guards[i][1]);
@@ -711,11 +711,11 @@ public class DatabaseInitializer {
             "INSERT INTO event_manager(firstname,lastname,email,password,venueGuardID) VALUES(?,?,?,?,?)",
             Statement.RETURN_GENERATED_KEYS);
         String[][] managers = {
-            {"Manager","One","mgr1@tickify.ac.za","mgr001"},
-            {"Manager","Two","mgr2@tickify.ac.za","mgr002"},
-            {"Manager","Three","mgr3@tickify.ac.za","mgr003"},
-            {"Manager","Four","mgr4@tickify.ac.za","mgr004"},
-            {"Manager","Five","mgr5@tickify.ac.za","mgr005"}
+            {"Manager","One","mgr1.tickify@gmail.com","mgr001"},
+            {"Manager","Two","mgr2.tickify@gmail.com","mgr002"},
+            {"Manager","Three","mgr3.tickify@gmail.com","mgr003"},
+            {"Manager","Four","mgr4.tickify@gmail.com","mgr004"},
+            {"Manager","Five","mgr5.tickify@gmail.com","mgr005"}
         };
         for (int i = 0; i < 5; i++) {
             pm.setString(1,managers[i][0]); pm.setString(2,managers[i][1]);
@@ -729,11 +729,11 @@ public class DatabaseInitializer {
         PreparedStatement ptp = conn.prepareStatement(
             "INSERT INTO tertiary_presenter(username,firstname,lastname,email,password,tertiaryInstitution,phoneNumber,biography,eventID,venueID) VALUES(?,?,?,?,?,?,?,?,?,?)");
         String[][] presenters = {
-            {"Prof","Zulu","pzulu@dut.ac.za","pres001","DUT"},
-            {"Dr","Naidoo","dnaidoo@ukzn.ac.za","pres002","UKZN"},
-            {"Prof","Smith","psmith@wits.ac.za","pres003","Wits"},
-            {"Dr","Baloyi","dbaloyi@uj.ac.za","pres004","UJ"},
-            {"Prof","Jacobs","pjacobs@cput.ac.za","pres005","CPUT"}
+            {"Prof","Zulu","pzulu.tickify@gmail.com","pres001","DUT"},
+            {"Dr","Naidoo","dnaidoo.tickify@gmail.com","pres002","UKZN"},
+            {"Prof","Smith","psmith.tickify@gmail.com","pres003","Wits"},
+            {"Dr","Baloyi","dbaloyi.tickify@gmail.com","pres004","UJ"},
+            {"Prof","Jacobs","pjacobs.tickify@gmail.com","pres005","CPUT"}
         };
         for (int i = 0; i < 5; i++) {
             ptp.setString(1,("presenter" + (i + 1)));
