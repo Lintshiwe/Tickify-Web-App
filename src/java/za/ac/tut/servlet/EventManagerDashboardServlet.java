@@ -162,6 +162,31 @@ public class EventManagerDashboardServlet extends HttpServlet {
                                 return;
                         }
 
+                        if ("clearUnsoldTickets".equals(action)) {
+                                int cleared = eventManagerService.repo().clearUnsoldTicketTemplatesForAssignedEvent(
+                                                eventManagerId,
+                                                parsePositiveInt(req(request, "eventID"), "InvalidEventId")
+                                );
+                                response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?msg=TicketsCleared&count=" + cleared);
+                                return;
+                        }
+
+                        if ("createConcertPack".equals(action)) {
+                                int eventId = parsePositiveInt(req(request, "eventID"), "InvalidEventId");
+                                int total = 0;
+                                if (eventManagerService.repo().addTicketTierForAssignedEvent(eventManagerId, eventId, "VIP Front Row", new BigDecimal("950.00"), 30)) {
+                                        total += 30;
+                                }
+                                if (eventManagerService.repo().addTicketTierForAssignedEvent(eventManagerId, eventId, "Golden Circle", new BigDecimal("650.00"), 80)) {
+                                        total += 80;
+                                }
+                                if (eventManagerService.repo().addTicketTierForAssignedEvent(eventManagerId, eventId, "General Access", new BigDecimal("350.00"), 250)) {
+                                        total += 250;
+                                }
+                                response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?msg=ConcertPackCreated&count=" + total);
+                                return;
+                        }
+
                         response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?err=UnknownAction");
                 } catch (IllegalArgumentException ex) {
                         response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?err=" + ex.getMessage());

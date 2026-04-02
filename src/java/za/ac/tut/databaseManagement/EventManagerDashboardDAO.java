@@ -306,6 +306,75 @@ public class EventManagerDashboardDAO {
         }
     }
 
+    public int clearUnsoldTicketTemplatesForAssignedEvent(int eventManagerId, int eventId) throws SQLException {
+        if (eventManagerId <= 0 || eventId <= 0) {
+            return 0;
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                if (!isEventAssignedToManager(conn, eventManagerId, eventId)) {
+                    conn.rollback();
+                    return 0;
+                }
+
+                List<Integer> ticketIds = new ArrayList<>();
+                List<Integer> qrIds = new ArrayList<>();
+
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT t.ticketID, t.QRcodeID "
+                        + "FROM event_has_ticket eht "
+                        + "JOIN ticket t ON t.ticketID = eht.ticketID "
+                        + "WHERE eht.eventID = ? "
+                        + "AND NOT EXISTS (SELECT 1 FROM attendee_has_ticket aht WHERE aht.ticketID = eht.ticketID)")) {
+                    ps.setInt(1, eventId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            ticketIds.add(rs.getInt("ticketID"));
+                            qrIds.add(rs.getInt("QRcodeID"));
+                        }
+                    }
+                }
+
+                if (ticketIds.isEmpty()) {
+                    conn.commit();
+                    return 0;
+                }
+
+                try (PreparedStatement delMap = conn.prepareStatement(
+                        "DELETE FROM event_has_ticket WHERE eventID = ? AND ticketID = ?");
+                     PreparedStatement delTicket = conn.prepareStatement(
+                        "DELETE FROM ticket WHERE ticketID = ?");
+                     PreparedStatement delQr = conn.prepareStatement(
+                        "DELETE FROM qrcode WHERE QRcodeID = ?")) {
+                    for (int i = 0; i < ticketIds.size(); i++) {
+                        int ticketId = ticketIds.get(i);
+                        int qrId = qrIds.get(i);
+
+                        delMap.setInt(1, eventId);
+                        delMap.setInt(2, ticketId);
+                        delMap.executeUpdate();
+
+                        delTicket.setInt(1, ticketId);
+                        delTicket.executeUpdate();
+
+                        delQr.setInt(1, qrId);
+                        delQr.executeUpdate();
+                    }
+                }
+
+                conn.commit();
+                return ticketIds.size();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
     private boolean isEventAssignedToManager(Connection conn, int eventManagerId, int eventId) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT 1 FROM event_has_manager WHERE eventManagerID = ? AND eventID = ?")) {

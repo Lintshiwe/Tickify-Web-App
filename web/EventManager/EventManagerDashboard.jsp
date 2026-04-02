@@ -76,6 +76,8 @@
                     <c:when test="${param.msg == 'EventUpdated'}">Assigned event details updated successfully.</c:when>
                     <c:when test="${param.msg == 'AlbumUploaded'}">Event album image uploaded successfully.</c:when>
                     <c:when test="${param.msg == 'TierCreated'}">Ticket tier templates were created successfully.</c:when>
+                    <c:when test="${param.msg == 'TicketsCleared'}">Cleared ${empty param.count ? 0 : param.count} unsold ticket templates from the selected event.</c:when>
+                    <c:when test="${param.msg == 'ConcertPackCreated'}">Created ${empty param.count ? 0 : param.count} new concert tickets across multiple tiers.</c:when>
                     <c:when test="${param.msg == 'NoChange'}">No changes were applied.</c:when>
                     <c:otherwise>Operation completed successfully.</c:otherwise>
                 </c:choose>
@@ -181,11 +183,38 @@
                             <input type="number" min="1" name="tierQuantity" placeholder="How Many Tickets" required>
                             <button class="btn-primary span-2" type="submit">Create Tier Tickets</button>
                         </form>
+
+                        <hr style="border:none;border-top:1px solid #dce9d8;margin:12px 0;">
+                        <p class="flow-hint">Need a full refresh? Clear old unsold templates and recreate a full concert pack in one click.</p>
+
+                        <form class="form-grid form-grid-2" action="${pageContext.request.contextPath}/EventManagerDashboard.do" method="POST">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
+                            <input type="hidden" name="action" value="clearUnsoldTickets">
+                            <select name="eventID" required>
+                                <option value="">Select Event To Clear</option>
+                                <c:forEach var="ev" items="${assignedEvents}">
+                                    <option value="${ev.eventID}">#${ev.eventID} - ${ev.eventName}</option>
+                                </c:forEach>
+                            </select>
+                            <button class="btn-primary" type="submit">Clear Unsold Tickets</button>
+                        </form>
+
+                        <form class="form-grid form-grid-2" action="${pageContext.request.contextPath}/EventManagerDashboard.do" method="POST" style="margin-top:8px;">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
+                            <input type="hidden" name="action" value="createConcertPack">
+                            <select name="eventID" required>
+                                <option value="">Select Event For Concert Pack</option>
+                                <c:forEach var="ev" items="${assignedEvents}">
+                                    <option value="${ev.eventID}">#${ev.eventID} - ${ev.eventName}</option>
+                                </c:forEach>
+                            </select>
+                            <button class="btn-primary" type="submit">Create Concert Ticket Pack</button>
+                        </form>
                     </article>
 
                     <article class="flow-card">
                         <h3>4) Upload Event Album</h3>
-                        <p class="flow-hint">Upload a cover or album image for an event in your scope.</p>
+                        <p class="flow-hint">Upload a cover or album image for an event in your scope. Use different image styles per event for variety.</p>
                         <form class="form-grid form-grid-2" action="${pageContext.request.contextPath}/EventManagerDashboard.do" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                             <input type="hidden" name="action" value="uploadAssignedEventAlbum">
@@ -198,6 +227,7 @@
                             <input type="file" name="eventAlbumImage" accept="image/*" required>
                             <button class="btn-primary span-2" type="submit">Upload Event Image</button>
                         </form>
+                        <p class="flow-hint" style="margin-top:8px;">Suggested styles: crowd shot, stage lights, DJ set, acoustic set, outdoor festival.</p>
                     </article>
                 </div>
             </section>
