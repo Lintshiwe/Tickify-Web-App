@@ -170,7 +170,7 @@
             <div class="simple-grid">
                 <div class="mini-card">
                     <h3>Create Event</h3>
-                    <form action="AdminEventAlbum.do" method="POST">
+                    <form action="${pageContext.request.contextPath}/AdminEventAlbum.do" method="POST">
                         <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                         <input type="hidden" name="action" value="createEvent">
                         <div class="field"><label>Event Name</label><input type="text" name="eventName" required></div>
@@ -184,7 +184,7 @@
                 </div>
                 <div class="mini-card">
                     <h3>Update Event</h3>
-                    <form action="AdminEventAlbum.do" method="POST">
+                    <form action="${pageContext.request.contextPath}/AdminEventAlbum.do" method="POST">
                         <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                         <input type="hidden" name="action" value="updateEvent">
                         <div class="field"><label>Event</label><select name="eventID" required><option value="">Select Event</option><c:forEach var="ev" items="${events}"><option value="${ev.eventID}">${ev.name} (#${ev.eventID})</option></c:forEach></select></div>
@@ -202,7 +202,7 @@
 
         <section class="card">
             <h2 style="margin-top:0;">Upload Event Album Image (File Upload)</h2>
-            <form action="AdminEventAlbum.do" method="POST" enctype="multipart/form-data">
+            <form action="${pageContext.request.contextPath}/AdminEventAlbum.do" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                 <div class="field">
                     <label>Event</label>
@@ -236,14 +236,14 @@
                         <div class="event-meta">
                             <strong>${ev.name}</strong>
                             <span>${ev.type} | ${ev.campusName}</span>
-                            <form action="AdminEventAlbum.do" method="POST" enctype="multipart/form-data" style="margin-top:8px;display:grid;gap:6px;">
+                            <form action="${pageContext.request.contextPath}/AdminEventAlbum.do" method="POST" enctype="multipart/form-data" style="margin-top:8px;display:grid;gap:6px;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                 <input type="hidden" name="action" value="upload">
                                 <input type="hidden" name="eventID" value="${ev.eventID}">
                                 <input type="file" name="eventAlbumImage" accept="image/*" required>
                                 <button type="submit" class="save" style="padding:7px 10px;">Replace Cover</button>
                             </form>
-                            <form action="AdminEventAlbum.do" method="POST" style="margin-top:6px;">
+                            <form action="${pageContext.request.contextPath}/AdminEventAlbum.do" method="POST" style="margin-top:6px;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                 <input type="hidden" name="action" value="clear">
                                 <input type="hidden" name="eventID" value="${ev.eventID}">

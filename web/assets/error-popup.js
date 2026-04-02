@@ -1,5 +1,7 @@
 (function () {
     var STORAGE_KEY_PREFIX = "tk_scroll_pos:";
+    var HEARTBEAT_PATH = "/SessionHeartbeat.do";
+    var HEARTBEAT_INTERVAL_MS = 4 * 60 * 1000;
 
     function pageKey() {
         return STORAGE_KEY_PREFIX + window.location.pathname + window.location.search;
@@ -66,6 +68,70 @@
     } else {
         restoreScrollPosition();
     }
+
+    function resolveContextPath() {
+        var scripts = document.getElementsByTagName("script");
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].getAttribute("src") || "";
+            var marker = "/assets/error-popup.js";
+            var idx = src.indexOf(marker);
+            if (idx > -1) {
+                return src.substring(0, idx);
+            }
+        }
+
+        var path = window.location.pathname || "";
+        var parts = path.split("/").filter(Boolean);
+        return parts.length > 0 ? "/" + parts[0] : "";
+    }
+
+    function isAuthenticatedArea() {
+        var p = window.location.pathname || "";
+        return p.indexOf("/Admin/") !== -1
+            || p.indexOf("/Attendee/") !== -1
+            || p.indexOf("/EventManager/") !== -1
+            || p.indexOf("/Presenter/") !== -1
+            || p.indexOf("/VenueGuard/") !== -1
+            || p.indexOf("/AdminDashboard.do") !== -1
+            || p.indexOf("/AttendeeDashboardServlet.do") !== -1
+            || p.indexOf("/EventManagerDashboard.do") !== -1
+            || p.indexOf("/TertiaryPresenterDashboard.do") !== -1;
+    }
+
+    function startSessionHeartbeat() {
+        if (!isAuthenticatedArea()) {
+            return;
+        }
+
+        var contextPath = resolveContextPath();
+        var endpoint = contextPath + HEARTBEAT_PATH;
+        var lastActivityAt = Date.now();
+
+        function markActive() {
+            lastActivityAt = Date.now();
+        }
+
+        ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(function (eventName) {
+            window.addEventListener(eventName, markActive, { passive: true });
+        });
+
+        setInterval(function () {
+            // Only keep alive when user has been active in the last interval window.
+            if (Date.now() - lastActivityAt > HEARTBEAT_INTERVAL_MS) {
+                return;
+            }
+
+            fetch(endpoint, {
+                method: "GET",
+                credentials: "same-origin",
+                cache: "no-store"
+            }).catch(function () {
+                // Ignore heartbeat transport errors; normal navigation will handle session state.
+            });
+        }, HEARTBEAT_INTERVAL_MS);
+    }
+
+    startSessionHeartbeat();
 
     var params = new URLSearchParams(window.location.search || "");
     if (params.get("suppressErrorPopup") === "1") {

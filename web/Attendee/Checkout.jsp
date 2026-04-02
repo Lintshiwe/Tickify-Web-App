@@ -75,7 +75,7 @@
             </div>
             <div class="actions">
                 <a class="link-btn" href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do">Back to Events</a>
-                <form action="BookTicket.do" method="POST" style="margin:0;">
+                <form action="${pageContext.request.contextPath}/BookTicket.do" method="POST" style="margin:0;">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <input type="hidden" name="action" value="clear">
                     <input type="hidden" name="returnTo" value="checkout">
@@ -134,7 +134,7 @@
                                 <div class="name">${item.eventName}</div>
                                 <div class="muted">Price each: R <fmt:formatNumber value="${item.price}" minFractionDigits="2" maxFractionDigits="2"/></div>
                             </div>
-                            <form action="BookTicket.do" method="POST" style="margin:0;display:flex;align-items:center;gap:8px;">
+                            <form action="${pageContext.request.contextPath}/BookTicket.do" method="POST" style="margin:0;display:flex;align-items:center;gap:8px;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="eventID" value="${item.eventID}">
@@ -143,7 +143,7 @@
                                 <button type="submit" class="link-btn">Update</button>
                             </form>
                             <div><strong>R <fmt:formatNumber value="${item.price * item.quantity}" minFractionDigits="2" maxFractionDigits="2"/></strong></div>
-                            <form action="BookTicket.do" method="POST" style="margin:0;">
+                            <form action="${pageContext.request.contextPath}/BookTicket.do" method="POST" style="margin:0;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                 <input type="hidden" name="action" value="remove">
                                 <input type="hidden" name="eventID" value="${item.eventID}">
@@ -161,7 +161,7 @@
                         <div style="font-size:1.35rem;font-weight:800;color:#2e3b2f;">
                             R <fmt:formatNumber value="${checkoutTotal}" minFractionDigits="2" maxFractionDigits="2"/>
                         </div>
-                        <form action="BookTicket.do" method="POST" style="margin:0;">
+                        <form action="${pageContext.request.contextPath}/BookTicket.do" method="POST" style="margin:0;">
                             <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                             <input type="hidden" name="action" value="checkout">
                             <input type="hidden" name="returnTo" value="checkout">

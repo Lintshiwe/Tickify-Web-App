@@ -1021,7 +1021,7 @@
                                         <img class="ticket-album" src="EventAlbumImage.do?eventID=${event.id}" alt="${event.name} album" onerror="this.style.display='none';">
                                         <div class="ticket-hero-actions">
                                             <button type="button" class="preview-btn" onclick="openEventPreview(this)">Preview</button>
-                                            <form action="Wishlist.do" method="POST" class="wish-form wish-overlay">
+                                            <form action="${pageContext.request.contextPath}/Wishlist.do" method="POST" class="wish-form wish-overlay">
                                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                                 <input type="hidden" name="eventID" value="${event.id}">
                                                 <c:choose>
@@ -1077,7 +1077,7 @@
                                         <img class="ticket-album" src="EventAlbumImage.do?eventID=${event.id}" alt="${event.name} album" onerror="this.style.display='none';">
                                         <div class="ticket-hero-actions">
                                             <button type="button" class="preview-btn" onclick="openEventPreview(this)">Preview</button>
-                                            <form action="Wishlist.do" method="POST" class="wish-form wish-overlay"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><input type="hidden" name="eventID" value="${event.id}"><input type="hidden" name="action" value="remove"><button type="submit" class="love-btn active" aria-label="Remove from favorites">♥</button></form>
+                                            <form action="${pageContext.request.contextPath}/Wishlist.do" method="POST" class="wish-form wish-overlay"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><input type="hidden" name="eventID" value="${event.id}"><input type="hidden" name="action" value="remove"><button type="submit" class="love-btn active" aria-label="Remove from favorites">♥</button></form>
                                         </div>
                                         <div class="ticket-hero-meta">
                                             <h3>${event.name}</h3>
@@ -1157,7 +1157,7 @@
                     <h4>Ticket Actions</h4>
                     <p id="previewStockNotice" style="margin:0 0 10px;color:#4f6250;">Pick number of tickets and add to cart without leaving this page.</p>
                     <div class="preview-actions">
-                        <form action="BookTicket.do" method="POST" class="cart-form" id="previewCartForm">
+                        <form action="${pageContext.request.contextPath}/BookTicket.do" method="POST" class="cart-form" id="previewCartForm">
                             <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                             <input type="hidden" name="action" value="add">
                             <input type="hidden" name="eventID" id="previewCartEventID" value="">
@@ -1168,7 +1168,7 @@
                             </div>
                             <button type="submit" class="btn btn-primary" id="previewAddButton">Add to Cart</button>
                         </form>
-                        <form action="Wishlist.do" method="POST" class="wish-form" id="previewWishForm">
+                        <form action="${pageContext.request.contextPath}/Wishlist.do" method="POST" class="wish-form" id="previewWishForm">
                             <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                             <input type="hidden" name="eventID" id="previewWishEventID" value="">
                             <input type="hidden" name="action" id="previewWishAction" value="add">

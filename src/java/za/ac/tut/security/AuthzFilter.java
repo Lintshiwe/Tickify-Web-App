@@ -33,6 +33,7 @@ public class AuthzFilter implements Filter {
             "/RegistrationServlet.do",
             "/ClientPasswordReset.do",
                 "/VerifyEmail.do",
+            "/SessionHeartbeat.do",
             "/LogoutServlet.do",
             "/AdvertImage.do"
     ));

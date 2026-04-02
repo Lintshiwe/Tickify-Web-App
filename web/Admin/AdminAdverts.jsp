@@ -118,7 +118,7 @@
         <div class="grid">
             <section class="card">
                 <h2 style="margin-top:0;">Create Advert</h2>
-                <form action="AdminAdverts.do" method="POST" enctype="multipart/form-data">
+                <form action="${pageContext.request.contextPath}/AdminAdverts.do" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <div class="field"><label>Organization</label><input type="text" name="organizationName" required></div>
                     <div class="field"><label>Title</label><input type="text" name="title" required></div>
@@ -143,7 +143,7 @@
                         <div class="muted">${ad.organizationName} | ${ad.venue} | ${ad.eventDate}</div>
                         <div class="row" style="margin-top:8px; align-items:flex-start;">
                             <img src="AdvertImage.do?id=${ad.advertID}" alt="${ad.title}" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e3eee0;">
-                            <form action="AdminAdverts.do" method="POST" enctype="multipart/form-data" style="margin:0; flex:1 1 auto;">
+                            <form action="${pageContext.request.contextPath}/AdminAdverts.do" method="POST" enctype="multipart/form-data" style="margin:0; flex:1 1 auto;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                 <input type="hidden" name="action" value="edit">
                                 <input type="hidden" name="advertID" value="${ad.advertID}">
@@ -160,7 +160,7 @@
                                     <button class="btn" type="submit">Save Edit</button>
                                 </div>
                             </form>
-                            <form action="AdminAdverts.do" method="POST" style="margin:0;">
+                            <form action="${pageContext.request.contextPath}/AdminAdverts.do" method="POST" style="margin:0;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="advertID" value="${ad.advertID}">

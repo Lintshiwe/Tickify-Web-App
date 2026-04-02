@@ -27,7 +27,7 @@
             <% if ("CodeSent".equals(msg)) { %><div class="status">Verification code sent.</div><% } %>
             <% if ("CodeInvalid".equals(err)) { %><div class="error">Invalid code. Try again.</div><% } %>
             <% if ("CodeExpired".equals(err)) { %><div class="error">Code expired. Please log in again.</div><% } %>
-            <form action="VerifyLogin2FA.do" method="POST">
+            <form action="${pageContext.request.contextPath}/VerifyLogin2FA.do" method="POST">
                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                 <input class="input" type="text" name="code" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required>
                 <button class="btn" type="submit">Verify & Continue</button>

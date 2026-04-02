@@ -144,6 +144,10 @@
         <servlet-name>VerifyEmailServlet</servlet-name>
         <servlet-class>za.ac.tut.servlet.VerifyEmailServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SessionHeartbeatServlet</servlet-name>
+        <servlet-class>za.ac.tut.servlet.SessionHeartbeatServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet.do</url-pattern>
@@ -255,6 +259,10 @@
     <servlet-mapping>
         <servlet-name>VerifyEmailServlet</servlet-name>
         <url-pattern>/VerifyEmail.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SessionHeartbeatServlet</servlet-name>
+        <url-pattern>/SessionHeartbeat.do</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>403</error-code>

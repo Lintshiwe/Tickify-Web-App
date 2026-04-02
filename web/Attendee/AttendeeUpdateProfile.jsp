@@ -41,7 +41,7 @@
             <c:if test="${not empty message}"><div class="alert alert-success">${message}</div></c:if>
             <c:if test="${not empty error}"><div class="alert alert-error">${error}</div></c:if>
             <div class="profile-form">
-                <form action="AttendeeViewProfileServlet.do" method="POST">
+                <form action="${pageContext.request.contextPath}/AttendeeViewProfileServlet.do" method="POST">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <div class="form-group"><label for="username">Username</label><input type="text" id="username" name="username" value="${userProfile.username}" pattern="[A-Za-z0-9_.-]{4,30}" required></div>
                     <div class="form-group"><label for="firstName">First Name</label><input type="text" id="firstName" name="firstName" value="${userProfile.firstname}" required></div>

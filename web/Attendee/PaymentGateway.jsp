@@ -81,7 +81,7 @@
                     This is a fake/sandbox checkout for now. After confirmation, Tickify generates and stores your tickets.
                     PayFast API integration can be plugged in later without changing the checkout route.
                 </p>
-                <form id="demoPaymentForm" action="PaymentGateway.do" method="POST" onsubmit="return submitDemoPayment(event)">
+                <form id="demoPaymentForm" action="${pageContext.request.contextPath}/PaymentGateway.do" method="POST" onsubmit="return submitDemoPayment(event)">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <input type="hidden" name="paymentAction" value="pay">
                     <div class="field"><label>Card Holder</label><input type="text" name="holder" value="${userFullName}" required></div>
@@ -103,7 +103,7 @@
                         <button id="payBtn" class="btn btn-pay" type="submit">Confirm Demo Payment</button>
                     </div>
                 </form>
-                <form action="PaymentGateway.do" method="POST" style="margin-top:8px;">
+                <form action="${pageContext.request.contextPath}/PaymentGateway.do" method="POST" style="margin-top:8px;">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <input type="hidden" name="paymentAction" value="cancel">
                     <button class="btn btn-cancel" type="submit">Cancel</button>
