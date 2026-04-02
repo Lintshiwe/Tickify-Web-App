@@ -92,7 +92,8 @@
         CheckoutFailed: "Checkout failed. Please try again.",
         TermsRequired: "You must accept the no-refund terms before continuing.",
         PaymentFailed: "Payment failed. Please try again.",
-        WishlistFailed: "Wishlist update failed. Please try again."
+        WishlistFailed: "Wishlist update failed. Please try again.",
+        CsrfExpired: "Security token expired. Please submit the form again."
     };
 
     var text = messages[err] || ("Error: " + err.replace(/_/g, " "));

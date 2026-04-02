@@ -29,6 +29,11 @@ public class EventManagerDashboardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+                if (!hasManagerRole(request)) {
+                        response.sendRedirect(request.getContextPath() + "/Login.jsp?err=AccessDenied");
+                        return;
+                }
+
         Object userIdObj = request.getSession().getAttribute("userID");
         int eventManagerId = userIdObj instanceof Integer ? (Integer) userIdObj : 0;
 
@@ -74,6 +79,11 @@ public class EventManagerDashboardServlet extends HttpServlet {
         @Override
         protected void doPost(HttpServletRequest request, HttpServletResponse response)
                         throws ServletException, IOException {
+                if (!hasManagerRole(request)) {
+                        response.sendRedirect(request.getContextPath() + "/Login.jsp?err=AccessDenied");
+                        return;
+                }
+
                 Object userIdObj = request.getSession().getAttribute("userID");
                 int eventManagerId = userIdObj instanceof Integer ? (Integer) userIdObj : 0;
                 if (eventManagerId <= 0) {
@@ -345,5 +355,14 @@ public class EventManagerDashboardServlet extends HttpServlet {
                         output.write(buffer, 0, read);
                 }
                 return output.toByteArray();
+        }
+
+        private boolean hasManagerRole(HttpServletRequest request) {
+                Object roleObj = request.getSession().getAttribute("userRole");
+                if (!(roleObj instanceof String)) {
+                        return false;
+                }
+                String normalized = ((String) roleObj).trim().toUpperCase().replace('-', '_').replace(' ', '_');
+                return "EVENT_MANAGER".equals(normalized);
         }
 }

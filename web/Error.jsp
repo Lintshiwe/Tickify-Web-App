@@ -43,7 +43,7 @@
             <c:set var="dashboardPath" value="/TertiaryPresenterDashboard.do" />
         </c:when>
         <c:when test="${sessionScope.userRole eq 'EVENT_MANAGER'}">
-            <c:set var="dashboardPath" value="/EventManager/EventManagerDashboard.jsp" />
+            <c:set var="dashboardPath" value="/EventManagerDashboard.do" />
         </c:when>
         <c:when test="${sessionScope.userRole eq 'VENUE_GUARD'}">
             <c:set var="dashboardPath" value="/VenueGuard/VenueGuardDashboard.jsp" />

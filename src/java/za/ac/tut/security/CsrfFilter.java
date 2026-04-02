@@ -21,6 +21,10 @@ public class CsrfFilter implements Filter {
     private static final String CSRF_SESSION_KEY = "csrfToken";
     private static final String CSRF_PARAM = "_csrf";
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String LOGIN_ENDPOINT = "/LoginServlet.do";
+    private static final String TWO_FACTOR_ENDPOINT = "/VerifyLogin2FA.do";
+    private static final String REGISTRATION_ENDPOINT = "/RegistrationServlet.do";
+    private static final String PASSWORD_RESET_ENDPOINT = "/ClientPasswordReset.do";
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -42,6 +46,11 @@ public class CsrfFilter implements Filter {
         if ("POST".equalsIgnoreCase(req.getMethod())) {
             String requestToken = resolveRequestToken(req);
             if (requestToken == null || !sessionToken.equals(requestToken)) {
+                session.setAttribute(CSRF_SESSION_KEY, generateToken());
+                if (isLoginFlowEndpoint(req)) {
+                    resp.sendRedirect(req.getContextPath() + loginRecoveryPath(req));
+                    return;
+                }
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token.");
                 return;
             }
@@ -89,5 +98,39 @@ public class CsrfFilter implements Filter {
         } catch (Exception ex) {
             return token;
         }
+    }
+
+    private boolean isLoginFlowEndpoint(HttpServletRequest req) {
+        String uri = req.getRequestURI();
+        String contextPath = req.getContextPath();
+        if (uri == null) {
+            return false;
+        }
+        String path = contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath)
+                ? uri.substring(contextPath.length())
+                : uri;
+        return LOGIN_ENDPOINT.equals(path)
+                || TWO_FACTOR_ENDPOINT.equals(path)
+                || REGISTRATION_ENDPOINT.equals(path)
+                || PASSWORD_RESET_ENDPOINT.equals(path);
+    }
+
+    private String loginRecoveryPath(HttpServletRequest req) {
+        String uri = req.getRequestURI();
+        String contextPath = req.getContextPath();
+        String path = contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath)
+                ? uri.substring(contextPath.length())
+                : uri;
+
+        if (TWO_FACTOR_ENDPOINT.equals(path)) {
+            return "/TwoFactor.jsp?err=CsrfExpired";
+        }
+        if (REGISTRATION_ENDPOINT.equals(path)) {
+            return "/UserSignUp.jsp?err=CsrfExpired";
+        }
+        if (PASSWORD_RESET_ENDPOINT.equals(path)) {
+            return "/ClientPasswordReset.jsp?err=CsrfExpired";
+        }
+        return "/Login.jsp?err=CsrfExpired";
     }
 }
