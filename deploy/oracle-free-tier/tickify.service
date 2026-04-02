@@ -1,0 +1,20 @@
+[Unit]
+Description=Tickify Payara Micro Service
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=tickify
+WorkingDirectory=/opt/tickify
+EnvironmentFile=/opt/tickify/config/tickify.env
+ExecStart=/usr/bin/java $JAVA_OPTS -jar /opt/tickify/lib/payara-micro.jar --port 8080 --deploy /opt/tickify/app/Tickify-SWP-Web-App.war --nocluster
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/tickify/logs/app.log
+StandardError=append:/opt/tickify/logs/app.err.log
+
+[Install]
+WantedBy=multi-user.target

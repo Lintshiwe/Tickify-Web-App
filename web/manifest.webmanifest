@@ -1,0 +1,15 @@
+{
+  "name": "Tickify",
+  "short_name": "Tickify",
+  "start_url": "/Tickify-SWP-Web-App/index.html",
+  "display": "standalone",
+  "background_color": "#f7faf6",
+  "theme_color": "#79c84a",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

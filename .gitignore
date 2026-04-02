@@ -1,0 +1,37 @@
+/nbproject/private/
+/dist/
+/build/
+
+# Local database files and logs
+*.db
+*.sqlite
+*.sqlite3
+*.mv.db
+*.trace.db
+*.lck
+*.dat
+derby.log
+db/
+database/
+
+# IDE/runtime noise
+.DS_Store
+*.log
+*.tmp
+*.swp
+
+# Secrets and local environment files
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+secrets/
+
+# Generated user guide artifacts
+docs/*.pdf
+docs/*.txt
+docs/*.ps
+docs/all_user_credentials.tsv

@@ -1,0 +1,39 @@
+<svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" width="400" height="100">
+  <defs>
+    <filter id="tagShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#C8CDD6" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Ticket tag shape -->
+  <path d="
+    M 14,22
+    Q 14,14 22,14
+    L 70,14
+    L 92,50
+    L 70,86
+    L 22,86
+    Q 14,86 14,78 Z
+  " fill="#ECEEF2" stroke="#D8DCE4" stroke-width="1.5" filter="url(#tagShadow)"/>
+
+  <!-- Punch hole -->
+  <circle cx="30" cy="50" r="5.5" fill="#FFFFFF" stroke="#D8DCE4" stroke-width="1.5"/>
+
+  <!-- Dashed divider -->
+  <line x1="50" y1="14" x2="50" y2="86" stroke="#D8DCE4" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- T lettermark on right section -->
+  <line x1="63" y1="35" x2="82" y2="35" stroke="#A9B3BF" stroke-width="3" stroke-linecap="round"/>
+  <line x1="72" y1="35" x2="72" y2="63" stroke="#A9B3BF" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Wordmark -->
+  <text x="108" y="63"
+    font-family="Segoe UI, Trebuchet MS, Arial, sans-serif"
+    font-size="40"
+    font-weight="400"
+    letter-spacing="-2"
+    fill="#4A5568">Tickify</text>
+
+  <!-- Dot accent -->
+  <circle cx="116" cy="76" r="3" fill="#B0BAC8"/>
+</svg>

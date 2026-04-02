@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tickify - Event Management</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="manifest.webmanifest">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+        <style>
+            :root {
+                --green: #79c84a;
+                --green-dark: #5ca833;
+                --bg: #f7faf6;
+                --ink: #3a4a3e;
+                --muted: #76857a;
+                --line: #d8e5d5;
+                --panel: #ffffff;
+            }
+            * { box-sizing: border-box; }
+            body {
+                margin: 0;
+                font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+                color: var(--ink);
+                background:
+                    radial-gradient(circle at 10% 0%, #eef8e9 0%, transparent 40%),
+                    radial-gradient(circle at 90% 20%, #edf7e9 0%, transparent 35%),
+                    var(--bg);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            .topbar {
+                background: #fff;
+                border-bottom: 1px solid var(--line);
+                padding: 16px 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .logo { font-size: 1.8rem; font-weight: 900; color: var(--green-dark); letter-spacing: 0.04em; }
+            .chip { background: #f1f9ed; color: var(--green-dark); padding: 8px 12px; border-radius: 999px; font-size: .86rem; font-weight: 700; }
+            main { flex: 1; display: grid; place-items: center; padding: 28px 20px; }
+            .hero {
+                width: min(1050px, 100%);
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 24px;
+                box-shadow: 0 18px 36px rgba(90, 130, 90, .08);
+                padding: 32px;
+            }
+            .kicker { color: var(--green-dark); font-weight: 800; letter-spacing: .12em; margin: 0 0 10px; }
+            h1 { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 3.2rem); color: #5fca3a; }
+            .subtitle { margin: 0 0 22px; color: var(--muted); font-size: 1.08rem; max-width: 62ch; }
+            .search-row {
+                display: flex;
+                gap: 10px;
+                background: #fbfef9;
+                border: 1px solid #cfe2c9;
+                border-radius: 999px;
+                padding: 8px;
+                max-width: 700px;
+            }
+            .search-row input {
+                flex: 1;
+                border: none;
+                background: transparent;
+                padding: 10px 14px;
+                font-size: 1rem;
+                color: var(--ink);
+            }
+            .search-row input:focus { outline: none; }
+            .search-row a {
+                text-decoration: none;
+                background: var(--green);
+                color: #fff;
+                font-weight: 800;
+                border-radius: 999px;
+                padding: 10px 18px;
+            }
+            .highlights {
+                margin-top: 20px;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+            }
+            .card { background: #fbfef9; border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--muted); }
+            .card strong { display: block; color: var(--ink); margin-bottom: 4px; }
+            footer { text-align: center; padding: 14px; border-top: 1px solid var(--line); background: #fff; color: var(--muted); }
+            @media (max-width: 760px) {
+                .hero { padding: 20px; }
+                .highlights { grid-template-columns: 1fr; }
+                .search-row { border-radius: 14px; }
+            }
+        </style>
+    </head>
+    <body data-interest="Event Discovery">
+        <header class="topbar">
+            <div class="logo">TICKIFY</div>
+            <div class="chip">South Africa Campus Events</div>
+        </header>
+        <main>
+            <section class="hero">
+                <p class="kicker">DISCOVER MORE</p>
+                <h1>Live More.</h1>
+                <p class="subtitle">Find events you love, book in seconds, and scan in confidently with a clean, modern ticket experience.</p>
+                <div class="search-row">
+                    <input type="text" placeholder="Search for any event">
+                    <a href="UserSelection.jsp">GO</a>
+                </div>
+                <div class="highlights">
+                    <article class="card"><strong>Fast Booking</strong>Get from discovery to checkout in a few taps.</article>
+                    <article class="card"><strong>Smart Wishlist</strong>Save events and return when you are ready.</article>
+                    <article class="card"><strong>Secure Entry</strong>Validated QR flow for faster gate management.</article>
+                </div>
+            </section>
+        </main>
+        <footer>
+            &copy; 2026 Tickify | Secure University Event Platform
+        </footer>
+        <script>
+            window.onload = function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                let shouldCleanUrl = false;
+                if (urlParams.get('msg') === 'AccountDeleted') { alert('Your account has been permanently deleted.'); shouldCleanUrl = true; }
+                if (urlParams.get('error') === 'DatabaseError') { alert('An error occurred while deleting your account.'); shouldCleanUrl = true; }
+                if (urlParams.get('status') === 'loggedOut') { alert('You have successfully logged out.'); shouldCleanUrl = true; }
+                if (shouldCleanUrl) { window.history.replaceState({}, document.title, 'index.html'); }
+            };
+        </script>
+        <script src="assets/error-popup.js"></script>
+        <script src="assets/cookie-consent.js"></script>
+        <script src="assets/pwa-register.js"></script>
+    </body>
+</html>
