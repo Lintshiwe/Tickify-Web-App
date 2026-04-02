@@ -32,7 +32,7 @@
                 <input class="input" type="text" name="code" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required>
                 <button class="btn" type="submit">Verify & Continue</button>
             </form>
-            <a href="Login.jsp">Back to Login</a>
+            <a href="${pageContext.request.contextPath}/Login.jsp">Back to Login</a>
         </div>
     </body>
 </html>

@@ -13,7 +13,8 @@
         body { margin:0; font-family:"Trebuchet MS","Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
         .wrap { width:100%; max-width:none; margin:0; padding:20px clamp(12px,2.7vw,36px); }
         .top { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
-        .brand { color:var(--green-dark); font-weight:900; letter-spacing:.1em; }
+        .brand { display:flex; align-items:center; gap:10px; color:var(--green-dark); font-weight:900; letter-spacing:.1em; }
+        .brand-logo { height:34px; width:auto; display:block; }
         .profile-meta { color:#607167; font-weight:700; font-size:.92rem; }
         .logout { text-decoration:none; background:#eef8e9; color:var(--green-dark); border:1px solid #cfe2c9; border-radius:10px; padding:10px 12px; font-weight:800; }
         .grid { margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -63,7 +64,7 @@
     <div class="wrap">
         <div class="top">
             <div>
-                <div class="brand">TICKIFY EVENT MANAGER</div>
+                <div class="brand"><img class="brand-logo" src="${pageContext.request.contextPath}/assets/tickify-logo-custom.svg" alt="Tickify" onerror="this.src='${pageContext.request.contextPath}/assets/tickify-logo.svg';">TICKIFY EVENT MANAGER</div>
                 <div class="profile-meta">${userFullName} | ${sessionScope.userRoleNumberLabel} | ${sessionScope.userCampusName}</div>
             </div>
             <a class="logout" href="${pageContext.request.contextPath}/LogoutServlet.do">Logout</a>
@@ -78,6 +79,7 @@
                     <c:when test="${param.msg == 'TierCreated'}">Ticket tier templates were created successfully.</c:when>
                     <c:when test="${param.msg == 'TicketsCleared'}">Cleared ${empty param.count ? 0 : param.count} unsold ticket templates from the selected event.</c:when>
                     <c:when test="${param.msg == 'ConcertPackCreated'}">Created ${empty param.count ? 0 : param.count} new concert tickets across multiple tiers.</c:when>
+                    <c:when test="${param.msg == 'ConcertSeriesCreated'}">Created a new concert series with event posters and ${empty param.count ? 0 : param.count} total tickets.</c:when>
                     <c:when test="${param.msg == 'NoChange'}">No changes were applied.</c:when>
                     <c:otherwise>Operation completed successfully.</c:otherwise>
                 </c:choose>
@@ -209,6 +211,12 @@
                                 </c:forEach>
                             </select>
                             <button class="btn-primary" type="submit">Create Concert Ticket Pack</button>
+                        </form>
+
+                        <form class="form-grid" action="${pageContext.request.contextPath}/EventManagerDashboard.do" method="POST" style="margin-top:8px;">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
+                            <input type="hidden" name="action" value="createConcertSeries">
+                            <button class="btn-primary" type="submit">Create New Concert Events + Tickets + Images</button>
                         </form>
                     </article>
 

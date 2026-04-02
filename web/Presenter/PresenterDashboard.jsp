@@ -13,7 +13,8 @@
         body { margin:0; font-family:"Trebuchet MS","Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
         .wrap { width:100%; max-width:none; margin:0; padding:20px clamp(12px,2.7vw,36px); }
         .top { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
-        .brand { color:var(--green-dark); font-weight:900; letter-spacing:.1em; }
+        .brand { display:flex; align-items:center; gap:10px; color:var(--green-dark); font-weight:900; letter-spacing:.1em; }
+        .brand-logo { height:34px; width:auto; display:block; }
         .profile-meta { color:#607167; font-weight:700; font-size:.92rem; }
         .logout { text-decoration:none; background:#eef8e9; color:var(--green-dark); border:1px solid #cfe2c9; border-radius:10px; padding:10px 12px; font-weight:800; }
         .card { margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; }
@@ -55,7 +56,7 @@
     <div class="wrap">
         <div class="top">
             <div>
-                <div class="brand">TICKIFY PRESENTER</div>
+                <div class="brand"><img class="brand-logo" src="${pageContext.request.contextPath}/assets/tickify-logo-custom.svg" alt="Tickify" onerror="this.src='${pageContext.request.contextPath}/assets/tickify-logo.svg';">TICKIFY PRESENTER</div>
                 <div class="profile-meta">${userFullName} | ${sessionScope.userRoleNumberLabel} | ${sessionScope.userCampusName}</div>
             </div>
             <a class="logout" href="${pageContext.request.contextPath}/LogoutServlet.do">Logout</a>

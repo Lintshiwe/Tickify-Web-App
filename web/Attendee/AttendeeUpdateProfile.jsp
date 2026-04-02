@@ -33,7 +33,7 @@
 <body>
     <div class="main-content">
         <header>
-            <a href="AttendeeDashboardServlet.do" class="logo">TICKIFY</a>
+            <a href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do" class="logo">TICKIFY</a>
             <div style="display:flex; gap:12px; align-items:center;"><span>Welcome, <strong>${userFullName}</strong></span><a href="LogoutServlet.do" class="logout">LOGOUT</a></div>
         </header>
         <div class="dashboard-body">
@@ -56,7 +56,7 @@
                     <button type="submit" class="btn-save">SAVE CHANGES</button>
                 </form>
             </div>
-            <a href="AttendeeDashboardServlet.do" class="back-link">&larr; Return to Dashboard</a>
+            <a href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do" class="back-link">&larr; Return to Dashboard</a>
         </div>
     </div>
     <script src="${pageContext.request.contextPath}/assets/error-popup.js"></script>

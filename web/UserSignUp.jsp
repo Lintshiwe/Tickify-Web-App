@@ -103,7 +103,7 @@
                     </div>
                     <button type="submit" class="btn-submit">CREATE ACCOUNT</button>
                 </form>
-                <div class="meta-links"><a href="Login.jsp">Already registered? Login</a><a href="UserSelection.jsp">Back to selection</a></div>
+                <div class="meta-links"><a href="${pageContext.request.contextPath}/Login.jsp">Already registered? Login</a><a href="${pageContext.request.contextPath}/UserSelection.jsp">Back to selection</a></div>
             </div>
         </main>
         <footer>&copy; 2026 <span class="yellow">Tickify</span> | Secure University Portal</footer>

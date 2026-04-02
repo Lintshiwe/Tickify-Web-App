@@ -75,7 +75,7 @@
                 <% if(request.getAttribute("error") != null) { %>
                     <div class="error"><%= request.getAttribute("error") %></div>
                 <% } %>
-                <form action="LoginServlet.do" method="POST">
+                <form action="${pageContext.request.contextPath}/LoginServlet.do" method="POST">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <fieldset class="role-selector" style="margin:0 0 14px;">
                         <legend style="font-weight:700; padding:0 6px; color:var(--green-dark);">Select Role</legend>
@@ -90,9 +90,9 @@
                     <button type="submit" class="btn-login">ACCESS PORTAL</button>
                 </form>
                 <div style="margin-top:10px;text-align:right;">
-                    <a class="back-link" href="ClientPasswordReset.jsp">Forgot attendee/presenter password?</a>
+                    <a class="back-link" href="${pageContext.request.contextPath}/ClientPasswordReset.jsp">Forgot attendee/presenter password?</a>
                 </div>
-                <a class="back-link" href="UserSelection.jsp">&larr; Back to selection</a>
+                <a class="back-link" href="${pageContext.request.contextPath}/UserSelection.jsp">&larr; Back to selection</a>
             </div>
         </main>
         <footer>&copy; 2026 <span class="gold">Tickify</span> | Secure Academic Portal</footer>

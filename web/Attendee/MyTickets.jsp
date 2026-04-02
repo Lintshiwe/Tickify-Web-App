@@ -224,11 +224,11 @@
             </div>
             <div class="head-actions">
                 <button type="button" class="btn-action" onclick="downloadAllTicketsPdf()">Download All Tickets PDF</button>
-                <a class="btn" href="MyOrderHistory.do">My Order History</a>
+                <a class="btn" href="${pageContext.request.contextPath}/MyOrderHistory.do">My Order History</a>
                 <% if (popupMode) { %>
                     <button type="button" class="btn-secondary" onclick="window.close()">Close Window</button>
                 <% } else { %>
-                    <a class="btn" href="AttendeeDashboardServlet.do">Back to Events</a>
+                    <a class="btn" href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do">Back to Events</a>
                 <% } %>
             </div>
         </div>

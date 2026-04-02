@@ -17,6 +17,13 @@ REMOTE_DIR="${REMOTE_DIR:-/home/$EC2_USER/Tickify-SWP-Web-App_Copy}"
 # Default to direct app mode on port 8080 for smaller VMs.
 NGINX_ENABLED="${NGINX_ENABLED:-false}"
 
+if [ "$NGINX_ENABLED" = "true" ]; then
+  APP_BASE_URL="http://$EC2_HOST"
+else
+  APP_BASE_URL="http://$EC2_HOST:8080/Tickify-SWP-Web-App"
+fi
+LOGO_URL="$APP_BASE_URL/assets/tickify-logo.svg"
+
 if [ -z "$EC2_HOST" ]; then
   echo "Missing EC2_HOST" >&2
   exit 1
@@ -48,7 +55,19 @@ rsync -az --delete \
 
 echo "Running setup + deploy on EC2 ..."
 ssh "${SSH_OPTS[@]}" "$EC2_USER@$EC2_HOST" \
-  "set -euo pipefail; cd '$REMOTE_DIR'; chmod +x deploy/oracle-free-tier/setup-vm.sh deploy/oracle-free-tier/deploy-app.sh; ./deploy/oracle-free-tier/setup-vm.sh; NGINX_ENABLED='$NGINX_ENABLED' ./deploy/oracle-free-tier/deploy-app.sh"
+  "set -euo pipefail; cd '$REMOTE_DIR'; chmod +x deploy/oracle-free-tier/setup-vm.sh deploy/oracle-free-tier/deploy-app.sh; ./deploy/oracle-free-tier/setup-vm.sh; NGINX_ENABLED='$NGINX_ENABLED' ./deploy/oracle-free-tier/deploy-app.sh; \
+  sudo mkdir -p /opt/tickify/config; sudo touch /opt/tickify/config/tickify.env; \
+  if sudo grep -q '^TICKIFY_APP_BASE_URL=' /opt/tickify/config/tickify.env; then \
+    sudo sed -i \"s|^TICKIFY_APP_BASE_URL=.*|TICKIFY_APP_BASE_URL=$APP_BASE_URL|\" /opt/tickify/config/tickify.env; \
+  else \
+    echo \"TICKIFY_APP_BASE_URL=$APP_BASE_URL\" | sudo tee -a /opt/tickify/config/tickify.env >/dev/null; \
+  fi; \
+  if sudo grep -q '^TICKIFY_LOGO_URL=' /opt/tickify/config/tickify.env; then \
+    sudo sed -i \"s|^TICKIFY_LOGO_URL=.*|TICKIFY_LOGO_URL=$LOGO_URL|\" /opt/tickify/config/tickify.env; \
+  else \
+    echo \"TICKIFY_LOGO_URL=$LOGO_URL\" | sudo tee -a /opt/tickify/config/tickify.env >/dev/null; \
+  fi; \
+  sudo chown tickify:tickify /opt/tickify/config/tickify.env; sudo chmod 640 /opt/tickify/config/tickify.env; sudo systemctl restart tickify"
 
 echo "Checking service health ..."
 ssh "${SSH_OPTS[@]}" "$EC2_USER@$EC2_HOST" \

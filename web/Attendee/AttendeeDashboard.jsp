@@ -833,7 +833,7 @@
         <div class="header-inner">
             <div class="header-top">
                 <div>
-                    <a href="AttendeeDashboardServlet.do" class="brand">
+                    <a href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do" class="brand">
                         <svg class="brand-logo-svg" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" aria-label="Tickify logo" role="img">
                             <defs>
                                 <filter id="tagShadow" x="-10%" y="-10%" width="130%" height="130%">
@@ -857,9 +857,9 @@
                         <span class="profile-meta">${userFullName} | #${userID}</span>
                     </button>
                     <div class="profile-menu" id="profileMenu">
-                        <a href="AttendeeDashboardServlet.do">Dashboard</a>
-                        <a href="ViewMyTickets.do">My Tickets</a>
-                        <a href="MyOrderHistory.do">My Order History</a>
+                        <a href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do">Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/ViewMyTickets.do">My Tickets</a>
+                        <a href="${pageContext.request.contextPath}/MyOrderHistory.do">My Order History</a>
                         <a href="AttendeeViewProfileServlet.do">Update Profile</a>
                         <a href="javascript:void(0);" onclick="confirmDelete()">Delete Account</a>
                         <a href="LogoutServlet.do" class="danger">Logout</a>
@@ -870,8 +870,8 @@
             <div class="header-nav">
                 <div class="nav-links">
                     <a href="#allSection" onclick="switchView('all');return false;">EVENTS</a>
-                    <a href="ViewMyTickets.do">MY TICKETS</a>
-                    <a href="MyOrderHistory.do">MY ORDER HISTORY</a>
+                    <a href="${pageContext.request.contextPath}/ViewMyTickets.do">MY TICKETS</a>
+                    <a href="${pageContext.request.contextPath}/MyOrderHistory.do">MY ORDER HISTORY</a>
                     <a href="#wishlistSection" onclick="switchView('wishlist')">MY LIKES</a>
                 </div>
                 <div class="cart-wrap">

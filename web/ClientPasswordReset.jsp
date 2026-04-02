@@ -98,8 +98,8 @@
                 </div>
 
                 <div class="meta-links">
-                    <a href="Login.jsp">Back to login</a>
-                    <a href="UserSelection.jsp">Back to selection</a>
+                    <a href="${pageContext.request.contextPath}/Login.jsp">Back to login</a>
+                    <a href="${pageContext.request.contextPath}/UserSelection.jsp">Back to selection</a>
                 </div>
             </div>
         </main>

@@ -74,7 +74,7 @@
                 <div class="sub">Review your cart, then continue to secure payment gateway.</div>
             </div>
             <div class="actions">
-                <a class="link-btn" href="AttendeeDashboardServlet.do">Back to Events</a>
+                <a class="link-btn" href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do">Back to Events</a>
                 <form action="BookTicket.do" method="POST" style="margin:0;">
                     <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
                     <input type="hidden" name="action" value="clear">

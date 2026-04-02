@@ -35,8 +35,8 @@
                 <div style="color:var(--muted);">View all your completed Tickify purchases.</div>
             </div>
             <div>
-                <a class="btn" href="AttendeeDashboardServlet.do">Back to Dashboard</a>
-                <a class="btn" href="ViewMyTickets.do">My Tickets</a>
+                <a class="btn" href="${pageContext.request.contextPath}/AttendeeDashboardServlet.do">Back to Dashboard</a>
+                <a class="btn" href="${pageContext.request.contextPath}/ViewMyTickets.do">My Tickets</a>
             </div>
         </div>
 

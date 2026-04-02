@@ -33,12 +33,12 @@
                     <section class="card">
                         <h2>Returning User</h2>
                         <p>Sign in to manage your bookings and account details.</p>
-                        <a href="Login.jsp" class="btn">LOGIN</a>
+                        <a href="${pageContext.request.contextPath}/Login.jsp" class="btn">LOGIN</a>
                     </section>
                     <section class="card">
                         <h2>New User</h2>
                         <p>Create your account and start booking in minutes.</p>
-                        <a href="UserSignUp.jsp" class="btn">SIGN UP</a>
+                        <a href="${pageContext.request.contextPath}/UserSignUp.jsp" class="btn">SIGN UP</a>
                     </section>
                 </div>
             </div>

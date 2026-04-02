@@ -187,6 +187,12 @@ public class EventManagerDashboardServlet extends HttpServlet {
                                 return;
                         }
 
+                        if ("createConcertSeries".equals(action)) {
+                                int total = eventManagerService.repo().createConcertSeriesForManager(eventManagerId);
+                                response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?msg=ConcertSeriesCreated&count=" + total);
+                                return;
+                        }
+
                         response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?err=UnknownAction");
                 } catch (IllegalArgumentException ex) {
                         response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?err=" + ex.getMessage());

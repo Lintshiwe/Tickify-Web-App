@@ -163,10 +163,15 @@ public class EventManagerDashboardDAO {
 
     public boolean createEventForManager(int eventManagerId, String eventName,
             String eventType, Timestamp eventDate, String description, String infoUrl, String status) throws SQLException {
+        return createEventForManagerAndGetId(eventManagerId, eventName, eventType, eventDate, description, infoUrl, status) > 0;
+    }
+
+    public int createEventForManagerAndGetId(int eventManagerId, String eventName,
+            String eventType, Timestamp eventDate, String description, String infoUrl, String status) throws SQLException {
         if (eventManagerId <= 0 || eventDate == null
                 || eventName == null || eventName.trim().isEmpty()
                 || eventType == null || eventType.trim().isEmpty()) {
-            return false;
+            return 0;
         }
 
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -175,7 +180,7 @@ public class EventManagerDashboardDAO {
                 int venueId = resolveManagerVenueId(conn, eventManagerId);
                 if (venueId <= 0) {
                     conn.rollback();
-                    return false;
+                    return 0;
                 }
 
                 int eventId;
@@ -194,7 +199,7 @@ public class EventManagerDashboardDAO {
                     try (ResultSet rs = eventInsert.getGeneratedKeys()) {
                         if (!rs.next()) {
                             conn.rollback();
-                            return false;
+                            return 0;
                         }
                         eventId = rs.getInt(1);
                     }
@@ -208,7 +213,7 @@ public class EventManagerDashboardDAO {
                 }
 
                 conn.commit();
-                return true;
+                return eventId;
             } catch (SQLException ex) {
                 conn.rollback();
                 throw ex;
@@ -216,6 +221,49 @@ public class EventManagerDashboardDAO {
                 conn.setAutoCommit(true);
             }
         }
+    }
+
+    public int createConcertSeriesForManager(int eventManagerId) throws SQLException {
+        long now = System.currentTimeMillis();
+        int totalTickets = 0;
+
+        String[][] events = new String[][] {
+            {"Neon Pulse Live", "Electronic Concert", "A high-energy electronic night with immersive visuals.", "https://tickify.live/events/neon-pulse"},
+            {"Acoustic Sunset Sessions", "Acoustic Concert", "An intimate acoustic evening with stripped-back performances.", "https://tickify.live/events/acoustic-sunset"},
+            {"Campus Amp Festival", "Festival Concert", "A multi-artist campus festival featuring diverse live acts.", "https://tickify.live/events/campus-amp"}
+        };
+
+        for (int i = 0; i < events.length; i++) {
+            Timestamp date = new Timestamp(now + ((long) (i + 2) * 24L * 60L * 60L * 1000L));
+            int eventId = createEventForManagerAndGetId(
+                    eventManagerId,
+                    events[i][0],
+                    events[i][1],
+                    date,
+                    events[i][2],
+                    events[i][3],
+                    "ACTIVE"
+            );
+            if (eventId <= 0) {
+                continue;
+            }
+
+            byte[] poster = buildConcertPosterSvg(events[i][0], i).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            updateAssignedEventAlbumImage(eventManagerId, eventId,
+                    "concert-poster-" + (i + 1) + ".svg", "image/svg+xml", poster);
+
+            if (addTicketTierForAssignedEvent(eventManagerId, eventId, "VIP Front Row", new BigDecimal("950.00"), 30)) {
+                totalTickets += 30;
+            }
+            if (addTicketTierForAssignedEvent(eventManagerId, eventId, "Golden Circle", new BigDecimal("650.00"), 80)) {
+                totalTickets += 80;
+            }
+            if (addTicketTierForAssignedEvent(eventManagerId, eventId, "General Access", new BigDecimal("350.00"), 250)) {
+                totalTickets += 250;
+            }
+        }
+
+        return totalTickets;
     }
 
     public boolean updateAssignedEventAlbumImage(int eventManagerId, int eventId, String filename,
@@ -401,6 +449,33 @@ public class EventManagerDashboardDAO {
                 return rs.wasNull() ? 0 : venueId;
             }
         }
+    }
+
+    private String buildConcertPosterSvg(String title, int variant) {
+        String[] accents = new String[] {"#79c84a", "#ff7a59", "#3db3ff"};
+        String accent = accents[Math.abs(variant) % accents.length];
+        return "<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630' viewBox='0 0 1200 630'>"
+                + "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
+                + "<stop offset='0%' stop-color='#111827'/><stop offset='100%' stop-color='#1f2937'/></linearGradient></defs>"
+                + "<rect width='1200' height='630' fill='url(#g)'/>"
+                + "<circle cx='170' cy='130' r='90' fill='" + accent + "' opacity='0.18'/>"
+                + "<circle cx='1020' cy='510' r='120' fill='" + accent + "' opacity='0.16'/>"
+                + "<text x='80' y='280' font-family='Segoe UI, Arial, sans-serif' font-size='68' font-weight='700' fill='#f9fafb'>"
+                + escapeXml(title)
+                + "</text>"
+                + "<text x='82' y='340' font-family='Segoe UI, Arial, sans-serif' font-size='28' fill='" + accent + "'>LIVE CONCERT SERIES</text>"
+                + "<rect x='80' y='386' width='380' height='8' fill='" + accent + "' rx='4'/></svg>";
+    }
+
+    private String escapeXml(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 
     private int runCount(String sql, int eventManagerId) throws SQLException {
