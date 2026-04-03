@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import za.ac.tut.application.engagement.EngagementCampaignService;
 import za.ac.tut.application.attendee.AttendeeService;
 import za.ac.tut.entities.Attendee;
 import za.ac.tut.notification.EmailService;
@@ -27,6 +28,7 @@ public class PaymentGatewayServlet extends HttpServlet {
     private static final String AGE_RESTRICTED_ERR = "AgeRestricted";
     private static final String SOLD_OUT_ERR = "SoldOut";
     private final AttendeeService attendeeService = new AttendeeService();
+    private final EngagementCampaignService engagementCampaignService = new EngagementCampaignService();
     private final EmailService emailService = new EmailService();
     private final PaymentProvider paymentProvider = PaymentProviderFactory.resolveProvider();
 
@@ -123,10 +125,12 @@ public class PaymentGatewayServlet extends HttpServlet {
         int purchased = 0;
         try {
             List<Map<String, Object>> purchasedTickets = new ArrayList<>();
+            List<Integer> touchedEventIds = new ArrayList<>();
             for (Map<String, Object> item : pending.values()) {
                 int eventId = ((Number) item.get("eventID")).intValue();
                 int quantity = ((Number) item.get("quantity")).intValue();
                 requested += quantity;
+                touchedEventIds.add(Integer.valueOf(eventId));
                 int createdForEvent = attendeeService.repo().purchaseTicketsForEvent(attendeeId, eventId, quantity);
                 purchased += createdForEvent;
                 if (createdForEvent > 0) {
@@ -141,7 +145,16 @@ public class PaymentGatewayServlet extends HttpServlet {
                     log("Order history persistence failed after successful payment", historyEx);
                 }
 
-                sendPurchaseEmailBestEffort(request, attendeeId, paymentResult.getTransactionRef(), purchasedTickets);
+                boolean emailSent = sendPurchaseEmailBestEffort(request, attendeeId, paymentResult.getTransactionRef(), purchasedTickets);
+                session.setAttribute("purchaseConfirmationMessage", "Your payment was successful and " + purchased + " ticket(s) were confirmed.");
+                session.setAttribute("purchaseEmailStatus", emailSent ? "SENT" : "FAILED");
+
+                try {
+                    engagementCampaignService.refreshBuyerProgressAndReward(attendeeId);
+                } catch (SQLException badgeEx) {
+                    log("Unable to refresh buyer badge/coupon status", badgeEx);
+                }
+                engagementCampaignService.processWishlistLowStockAlerts(request, touchedEventIds);
 
                 pending.clear();
                 getOrCreateCart(session).clear();
@@ -187,15 +200,15 @@ public class PaymentGatewayServlet extends HttpServlet {
         return true;
     }
 
-    private void sendPurchaseEmailBestEffort(HttpServletRequest request, int attendeeId,
+    private boolean sendPurchaseEmailBestEffort(HttpServletRequest request, int attendeeId,
             String transactionRef, List<Map<String, Object>> purchasedTickets) {
         if (purchasedTickets == null || purchasedTickets.isEmpty()) {
-            return;
+            return false;
         }
         try {
             Attendee attendee = attendeeService.repo().getAttendeeByID(attendeeId);
             if (attendee == null || attendee.getEmail() == null || attendee.getEmail().trim().isEmpty()) {
-                return;
+                return false;
             }
 
             String first = attendee.getFirstname() == null ? "" : attendee.getFirstname().trim();
@@ -207,9 +220,11 @@ public class PaymentGatewayServlet extends HttpServlet {
 
             emailService.sendTicketPurchaseEmail(attendee.getEmail(), attendeeName,
                     transactionRef, purchasedTickets, myTicketsLink);
+            return true;
         } catch (Exception ex) {
             // Ticket delivery should not block successful checkout.
             log("Ticket purchase email delivery failed", ex);
+            return false;
         }
     }
 

@@ -18,9 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import za.ac.tut.application.media.AdvertService;
 import za.ac.tut.application.attendee.AttendeeService;
+import za.ac.tut.application.engagement.EngagementCampaignService;
 
 
 public class AttendeeDashboardServlet extends HttpServlet {
+
+    private final EngagementCampaignService engagementService = new EngagementCampaignService();
 
 
    @Override
@@ -48,6 +51,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
         List<Map<String, Object>> wishlistEvents = attendeeService.repo().getWishlistEvents(attendeeId);
         List<Map<String, Object>> adverts = advertService.repo().getActiveSelectedAdverts();
         Set<Integer> wishlistEventIds = attendeeService.repo().getWishlistEventIds(attendeeId);
+        Map<String, Object> engagement = engagementService.getAttendeeSnapshot(attendeeId);
         HttpSession session = request.getSession();
         Map<Integer, Map<String, Object>> cart = getOrCreateCart(session);
         double checkoutTotal = calculateCartTotal(cart);
@@ -80,6 +84,13 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
         request.setAttribute("checkoutTotal", checkoutTotal);
         request.setAttribute("cartCount", cartCount);
         request.setAttribute("cartItems", cart.values());
+        request.setAttribute("subscribed", Boolean.TRUE.equals(engagement.get("subscribed")));
+        request.setAttribute("badgeTitle", engagement.get("badgeTitle"));
+        request.setAttribute("badgeLevel", engagement.get("badgeLevel"));
+        request.setAttribute("lifetimeTickets", engagement.get("totalTickets"));
+        request.setAttribute("lifetimeSpend", engagement.get("totalSpend"));
+        request.setAttribute("activeCouponCode", engagement.get("couponCode"));
+        request.setAttribute("activeCouponPercent", engagement.get("couponPercent"));
         
         request.getRequestDispatcher("/Attendee/AttendeeDashboard.jsp").forward(request, response);
         

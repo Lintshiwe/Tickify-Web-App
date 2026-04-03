@@ -35,7 +35,8 @@ public class AuthzFilter implements Filter {
                 "/VerifyEmail.do",
             "/SessionHeartbeat.do",
             "/LogoutServlet.do",
-            "/AdvertImage.do"
+            "/AdvertImage.do",
+            "/Unsubscribe.do"
     ));
 
     @Override
@@ -103,7 +104,8 @@ public class AuthzFilter implements Filter {
                 || uri.equals("/AttendeeDeleteProfileServlet.do") || uri.equals("/BookTicket.do")
                 || uri.equals("/MyOrderHistory.do")
                 || uri.equals("/Wishlist.do") || uri.equals("/Checkout.do")
-                || uri.equals("/PaymentGateway.do")) {
+                || uri.equals("/PaymentGateway.do") || uri.equals("/AttendeeSubscription.do")
+                || uri.equals("/TicketDownload.do")) {
             return "ATTENDEE";
         }
         if (uri.equals("/AdminAdverts.do")) {

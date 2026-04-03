@@ -111,7 +111,9 @@
             position:absolute;
             right:0;
             top:calc(100% + 10px);
-            min-width:230px;
+            width:min(360px,92vw);
+            max-height:72vh;
+            overflow:auto;
             background:#fff;
             border:1px solid #dee5da;
             border-radius:12px;
@@ -130,6 +132,19 @@
         }
         .profile-menu a:hover { background:#f3f7f1; }
         .profile-menu .danger { color:#9b1c1c; background:#fff5f5; }
+        .profile-panels {
+            margin-top:8px;
+            padding-top:8px;
+            border-top:1px solid #e8ece6;
+            display:grid;
+            gap:8px;
+        }
+        .profile-panels .engagement-card {
+            margin:0;
+            box-shadow:none;
+            padding:10px;
+            border-radius:10px;
+        }
 
         .header-nav {
             margin-top:12px;
@@ -306,6 +321,46 @@
             color:#7a271a;
             text-decoration:underline;
             font-weight:800;
+        }
+        .engagement-card {
+            background:#fff;
+            border:1px solid #d7e5d0;
+            border-radius:12px;
+            padding:12px;
+            box-shadow:0 8px 18px rgba(44,70,38,.08);
+        }
+        .engagement-card h4 {
+            margin:0 0 7px;
+            font-size:.86rem;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            color:#44634f;
+        }
+        .engagement-main {
+            font-size:1.02rem;
+            font-weight:800;
+            color:#1f3d2b;
+            margin-bottom:6px;
+        }
+        .sub-form {
+            margin-top:8px;
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+        .sub-btn {
+            border:1px solid #8ec971;
+            background:#7fc74a;
+            color:#17311f;
+            border-radius:999px;
+            padding:7px 12px;
+            font-weight:800;
+            cursor:pointer;
+        }
+        .sub-btn.off {
+            border-color:#d8e1d2;
+            background:#f4f7f2;
+            color:#355141;
         }
         .event-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px; }
         .event-card {
@@ -861,6 +916,50 @@
                         <a href="${pageContext.request.contextPath}/ViewMyTickets.do">My Tickets</a>
                         <a href="${pageContext.request.contextPath}/MyOrderHistory.do">My Order History</a>
                         <a href="AttendeeViewProfileServlet.do">Update Profile</a>
+                        <div class="profile-panels">
+                            <article class="engagement-card" id="subscriptionPanel">
+                                <h4>Subscriber Updates</h4>
+                                <div class="engagement-main">
+                                    <c:choose>
+                                        <c:when test="${subscribed}">Subscribed to event and advert mailers</c:when>
+                                        <c:otherwise>Not subscribed to campaign updates</c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div style="color:#4a6453; font-size:.9rem;">Get new-event updates and upcoming adverts in your inbox.</div>
+                                <form action="${pageContext.request.contextPath}/AttendeeSubscription.do" method="POST" class="sub-form">
+                                    <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
+                                    <c:choose>
+                                        <c:when test="${subscribed}">
+                                            <input type="hidden" name="action" value="unsubscribe">
+                                            <button type="submit" class="sub-btn off">Unsubscribe</button>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <input type="hidden" name="action" value="subscribe">
+                                            <button type="submit" class="sub-btn">Subscribe</button>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </form>
+                            </article>
+                            <article class="engagement-card">
+                                <h4>Buyer Badge</h4>
+                                <div class="engagement-main">${badgeTitle}</div>
+                                <div style="color:#4a6453; font-size:.9rem;">Level: ${badgeLevel} | Lifetime tickets: ${lifetimeTickets}</div>
+                                <div style="color:#4a6453; font-size:.9rem;">Lifetime spend: R <fmt:formatNumber value="${lifetimeSpend}" minFractionDigits="2" maxFractionDigits="2"/></div>
+                            </article>
+                            <article class="engagement-card">
+                                <h4>Active Coupon</h4>
+                                <c:choose>
+                                    <c:when test="${not empty activeCouponCode}">
+                                        <div class="engagement-main">${activeCouponCode}</div>
+                                        <div style="color:#4a6453; font-size:.9rem;">Discount: ${activeCouponPercent}% off next checkout.</div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="engagement-main">No active coupon yet</div>
+                                        <div style="color:#4a6453; font-size:.9rem;">Buy more tickets to unlock silver, gold, and platinum rewards.</div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </article>
+                        </div>
                         <a href="javascript:void(0);" onclick="confirmDelete()">Delete Account</a>
                         <a href="LogoutServlet.do" class="danger">Logout</a>
                     </div>
@@ -976,6 +1075,10 @@
                 <div class="flash flash-success">Event added to wishlist.</div>
             <% } else if ("WishlistRemoved".equals(msg)) { %>
                 <div class="flash flash-success">Event removed from wishlist.</div>
+            <% } else if ("Subscribed".equals(msg)) { %>
+                <div class="flash flash-success">Subscription enabled. You will receive event-update and advert campaign emails.</div>
+            <% } else if ("Unsubscribed".equals(msg)) { %>
+                <div class="flash flash-success">Subscription disabled. You can enable updates again anytime.</div>
             <% } %>
 
             <% if (err != null) { %>
@@ -996,6 +1099,10 @@
                         Your account is under 18 and cannot purchase tickets for this event type.
                     <% } else if ("SoldOut".equals(err)) { %>
                         This event is sold out. Live stock changed before your action completed.
+                    <% } else if ("SubscriptionUpdateFailed".equals(err)) { %>
+                        Unable to update subscription right now. Please try again.
+                    <% } else if ("SubscriptionActionInvalid".equals(err)) { %>
+                        Invalid subscription action requested.
                     <% } else { %>
                         Action failed. Please try again.
                     <% } %>
@@ -1140,7 +1247,6 @@
                         <div class="preview-detail"><strong>Available Tickets</strong><span id="previewEventAvailable">-</span></div>
                     </div>
                     <div class="preview-detail" style="margin-top:10px;"><strong>Description</strong><span id="previewEventDescription" style="display:block;margin-top:4px;">-</span></div>
-                    <div class="preview-detail" style="margin-top:8px;"><strong>More Info</strong><span id="previewEventInfoUrl">-</span></div>
                     <div class="preview-detail" style="margin-top:8px;"><strong>Share</strong>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
                             <button type="button" class="btn btn-alt" onclick="shareEvent('WHATSAPP')">WhatsApp</button>
@@ -1450,7 +1556,6 @@
             var venue = card.getAttribute('data-venue') || '-';
             var address = card.getAttribute('data-address') || '-';
             var description = card.getAttribute('data-description') || '';
-            var infoUrl = card.getAttribute('data-info-url') || '';
             var status = card.getAttribute('data-status') || 'ACTIVE';
             var price = card.getAttribute('data-price') || '0';
             var totalTickets = toInt(card.getAttribute('data-total-tickets'));
@@ -1467,12 +1572,6 @@
             document.getElementById('previewEventAddress').textContent = address;
             document.getElementById('previewEventStatus').textContent = status;
             document.getElementById('previewEventDescription').textContent = description ? description : 'No description provided yet.';
-            var infoNode = document.getElementById('previewEventInfoUrl');
-            if (infoUrl) {
-                infoNode.innerHTML = '<a href="' + infoUrl + '" target="_blank" rel="noopener noreferrer">Open event info link</a>';
-            } else {
-                infoNode.textContent = 'No external info link available.';
-            }
             document.getElementById('previewEventPrice').textContent = formatPreviewPrice(price);
             applyPreviewStockState(totalTickets, soldTickets);
 

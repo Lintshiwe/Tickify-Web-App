@@ -26,7 +26,10 @@ import za.ac.tut.security.PasswordUtil;
 public class AdminITDAO {
 
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
-    private static final String PRIVILEGED_ADMIN_EMAIL = "admin@tickify.ac.za";
+        private static final Set<String> PRIVILEGED_ADMIN_EMAILS = new TreeSet<>(Arrays.asList(
+            "ntoampilp@gmail.com",
+            "admin@tickify.ac.za"
+        ));
     private static final String SYSTEM_SETTING_TABLE = "system_setting";
     private static final String MINOR_RESTRICTED_KEYWORDS_SETTING_KEY = "minor_restricted_event_keywords";
     private static final String MINOR_RESTRICTED_KEYWORDS_DEFAULT = "18+,adult,alcohol,club,night,nightlife,cocktail,wine,liquor,beer";
@@ -857,7 +860,7 @@ public class AdminITDAO {
                     return false;
                 }
                 String email = rs.getString("email");
-                return email != null && PRIVILEGED_ADMIN_EMAIL.equalsIgnoreCase(email.trim());
+                return isPrivilegedEmail(email);
             }
         }
     }
@@ -875,12 +878,19 @@ public class AdminITDAO {
                 }
                 String email = rs.getString("email");
                 String stored = rs.getString("password");
-                if (email == null || !PRIVILEGED_ADMIN_EMAIL.equalsIgnoreCase(email.trim())) {
+                if (!isPrivilegedEmail(email)) {
                     return false;
                 }
                 return PasswordUtil.matches(providedPassword, stored);
             }
         }
+    }
+
+    private boolean isPrivilegedEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        return PRIVILEGED_ADMIN_EMAILS.contains(email.trim().toLowerCase());
     }
 
     public Map<String, Object> getAdminProfile(int adminId) throws SQLException {

@@ -933,6 +933,11 @@ public boolean deleteAttendee(int id) throws SQLException {
     String deleteEventLinks = "DELETE FROM attendee_has_event WHERE attendeeID = ?";
     String deleteTicketLinks = "DELETE FROM attendee_has_ticket WHERE attendeeID = ?";
     String deleteWishlistLinks = "DELETE FROM attendee_wishlist WHERE attendeeID = ?";
+    String deleteSubscription = "DELETE FROM attendee_subscription WHERE attendeeID = ?";
+    String deleteBadge = "DELETE FROM attendee_badge WHERE attendeeID = ?";
+    String deleteCoupons = "DELETE FROM attendee_coupon WHERE attendeeID = ?";
+    String deleteCampaignLog = "DELETE FROM email_campaign_log WHERE attendeeID = ?";
+    String deleteStockAlerts = "DELETE FROM wishlist_stock_alert_log WHERE attendeeID = ?";
     
     // 2. Define the SQL for the Attendee
     String deleteAttendee = "DELETE FROM attendee WHERE attendeeID = ?";
@@ -959,6 +964,31 @@ public boolean deleteAttendee(int id) throws SQLException {
         try (PreparedStatement psWishlist = conn.prepareStatement(deleteWishlistLinks)) {
             psWishlist.setInt(1, id);
             psWishlist.executeUpdate();
+        }
+
+        try (PreparedStatement psSubscription = conn.prepareStatement(deleteSubscription)) {
+            psSubscription.setInt(1, id);
+            psSubscription.executeUpdate();
+        }
+
+        try (PreparedStatement psBadge = conn.prepareStatement(deleteBadge)) {
+            psBadge.setInt(1, id);
+            psBadge.executeUpdate();
+        }
+
+        try (PreparedStatement psCoupons = conn.prepareStatement(deleteCoupons)) {
+            psCoupons.setInt(1, id);
+            psCoupons.executeUpdate();
+        }
+
+        try (PreparedStatement psCampaign = conn.prepareStatement(deleteCampaignLog)) {
+            psCampaign.setInt(1, id);
+            psCampaign.executeUpdate();
+        }
+
+        try (PreparedStatement psStockAlerts = conn.prepareStatement(deleteStockAlerts)) {
+            psStockAlerts.setInt(1, id);
+            psStockAlerts.executeUpdate();
         }
 
         // Step B: Clear the Attendee (Parent record)

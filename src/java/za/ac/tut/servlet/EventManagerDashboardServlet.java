@@ -19,12 +19,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import za.ac.tut.application.engagement.EngagementCampaignService;
 import za.ac.tut.application.eventmanager.EventManagerDashboardService;
 
 @MultipartConfig(maxFileSize = 12 * 1024 * 1024)
 public class EventManagerDashboardServlet extends HttpServlet {
 
     private final EventManagerDashboardService eventManagerService = new EventManagerDashboardService();
+        private final EngagementCampaignService engagementCampaignService = new EngagementCampaignService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -99,7 +101,7 @@ public class EventManagerDashboardServlet extends HttpServlet {
                                 String description = optionalText(param(request, "description"), 0, 1200, "InvalidEventDescription");
                                 String infoUrl = optionalUrl(param(request, "infoUrl"), 255, "InvalidEventInfoUrl");
                                 String status = parseEventStatus(param(request, "eventStatus"));
-                                boolean ok = eventManagerService.repo().createEventForManager(
+                                int createdEventId = eventManagerService.repo().createEventForManagerAndGetId(
                                                 eventManagerId,
                                                 eventName,
                                                 eventType,
@@ -108,6 +110,10 @@ public class EventManagerDashboardServlet extends HttpServlet {
                                                 infoUrl,
                                                 status
                                 );
+                                boolean ok = createdEventId > 0;
+                                if (ok) {
+                                        engagementCampaignService.notifySubscribersForNewEvent(request, createdEventId);
+                                }
                                 response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?" + (ok ? "msg=EventCreated" : "err=CreateEventNotAllowed"));
                                 return;
                         }
@@ -198,7 +204,19 @@ public class EventManagerDashboardServlet extends HttpServlet {
                         }
 
                         if ("createConcertSeries".equals(action)) {
-                                int total = eventManagerService.repo().createConcertSeriesForManager(eventManagerId);
+                                Map<String, Object> result = eventManagerService.repo().createConcertSeriesForManagerDetailed(eventManagerId);
+                                int total = result.get("totalTickets") instanceof Number
+                                        ? ((Number) result.get("totalTickets")).intValue()
+                                        : 0;
+                                @SuppressWarnings("unchecked")
+                                List<Integer> eventIds = result.get("eventIds") instanceof List
+                                        ? (List<Integer>) result.get("eventIds")
+                                        : new ArrayList<Integer>();
+                                for (Integer eventId : eventIds) {
+                                        if (eventId != null && eventId.intValue() > 0) {
+                                                engagementCampaignService.notifySubscribersForNewEvent(request, eventId.intValue());
+                                        }
+                                }
                                 response.sendRedirect(request.getContextPath() + "/EventManagerDashboard.do?msg=ConcertSeriesCreated&count=" + total);
                                 return;
                         }

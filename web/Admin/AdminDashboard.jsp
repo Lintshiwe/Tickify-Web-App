@@ -160,7 +160,7 @@
                 <c:choose>
                     <c:when test="${param.err == 'RootAuthFailed'}">Current root password is incorrect.</c:when>
                     <c:when test="${param.err == 'RootPasswordMismatch'}">New root password and confirmation do not match.</c:when>
-                    <c:when test="${param.err == 'PrivilegedRequired'}">Only admin@tickify.ac.za can perform this operation.</c:when>
+                    <c:when test="${param.err == 'PrivilegedRequired'}">Only the main admin account can perform this operation.</c:when>
                     <c:when test="${param.err == 'CampusScopeDenied'}">This action is restricted to your assigned campus scope.</c:when>
                     <c:when test="${param.err == 'InvalidAssignment'}">Assignment values must reference existing events, venues, guards, and institutions.</c:when>
                     <c:when test="${param.err == 'EventHasSales'}">Event cannot be deleted because tickets were already sold.</c:when>

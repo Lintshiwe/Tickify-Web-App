@@ -51,11 +51,14 @@ rm -rf "$TMP_WAR_DIR"
 EOF
 
 sudo cp "$PROJECT_ROOT/deploy/oracle-free-tier/tickify.service" /etc/systemd/system/tickify.service
+sudo cp "$PROJECT_ROOT/deploy/oracle-free-tier/payara-postboot.asadmin" "$APP_HOME/config/payara-postboot.asadmin"
 if [ ! -f "$APP_HOME/config/tickify.env" ]; then
   sudo cp "$PROJECT_ROOT/deploy/oracle-free-tier/tickify.env.example" "$APP_HOME/config/tickify.env"
 fi
 sudo chown "$APP_USER":"$APP_USER" "$APP_HOME/config/tickify.env"
+sudo chown "$APP_USER":"$APP_USER" "$APP_HOME/config/payara-postboot.asadmin"
 sudo chmod 640 "$APP_HOME/config/tickify.env"
+sudo chmod 640 "$APP_HOME/config/payara-postboot.asadmin"
 
 sudo systemctl daemon-reload
 sudo systemctl enable tickify

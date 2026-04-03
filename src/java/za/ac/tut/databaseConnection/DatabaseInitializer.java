@@ -24,6 +24,7 @@ public class DatabaseInitializer {
             ensureClientProfileColumns(conn);
             ensureClientEmailVerificationColumns(conn);
             ensureUniqueClientUsernameIndexes(conn);
+            ensureEngagementData(conn);
             ensureRootPasswordConfig(conn);
             seedData(conn);
             repairRoleCredentials(conn);
@@ -965,6 +966,83 @@ public class DatabaseInitializer {
         }
         if (tableExists(conn, "TERTIARY_PRESENTER") && !hasDuplicateNonBlankValues(conn, "tertiary_presenter", "username")) {
             createUniqueIndexIfPossible(conn, "uq_presenter_username", "tertiary_presenter", "username");
+        }
+    }
+
+    private static void ensureEngagementData(Connection conn) throws SQLException {
+        if (tableExists(conn, "ATTENDEE_SUBSCRIPTION") && tableExists(conn, "ATTENDEE_BADGE")
+                && tableExists(conn, "ATTENDEE_COUPON") && tableExists(conn, "WISHLIST_STOCK_ALERT_LOG")
+                && tableExists(conn, "EMAIL_CAMPAIGN_LOG")) {
+            return;
+        }
+
+        try (Statement st = conn.createStatement()) {
+            if (!tableExists(conn, "ATTENDEE_SUBSCRIPTION")) {
+                st.execute("CREATE TABLE attendee_subscription ("
+                        + " attendeeID INT NOT NULL PRIMARY KEY,"
+                        + " email VARCHAR(120) NOT NULL,"
+                        + " subscribed BOOLEAN NOT NULL,"
+                        + " unsubscribeToken VARCHAR(120) NOT NULL,"
+                        + " subscribedAt TIMESTAMP,"
+                        + " unsubscribedAt TIMESTAMP,"
+                        + " lastCampaignAt TIMESTAMP,"
+                        + " FOREIGN KEY (attendeeID) REFERENCES attendee(attendeeID)"
+                        + ")");
+            }
+
+            if (!tableExists(conn, "ATTENDEE_BADGE")) {
+                st.execute("CREATE TABLE attendee_badge ("
+                        + " attendeeID INT NOT NULL PRIMARY KEY,"
+                        + " badgeLevel VARCHAR(30) NOT NULL,"
+                        + " badgeTitle VARCHAR(80) NOT NULL,"
+                        + " totalTickets INT NOT NULL,"
+                        + " totalSpend DECIMAL(12,2) NOT NULL,"
+                        + " lastUpdated TIMESTAMP NOT NULL,"
+                        + " FOREIGN KEY (attendeeID) REFERENCES attendee(attendeeID)"
+                        + ")");
+            }
+
+            if (!tableExists(conn, "ATTENDEE_COUPON")) {
+                st.execute("CREATE TABLE attendee_coupon ("
+                        + " couponID INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,"
+                        + " attendeeID INT NOT NULL,"
+                        + " couponCode VARCHAR(40) NOT NULL UNIQUE,"
+                        + " discountPercent INT NOT NULL,"
+                        + " status VARCHAR(20) NOT NULL,"
+                        + " reason VARCHAR(60),"
+                        + " createdAt TIMESTAMP NOT NULL,"
+                        + " expiresAt TIMESTAMP,"
+                        + " FOREIGN KEY (attendeeID) REFERENCES attendee(attendeeID)"
+                        + ")");
+            }
+
+            if (!tableExists(conn, "WISHLIST_STOCK_ALERT_LOG")) {
+                st.execute("CREATE TABLE wishlist_stock_alert_log ("
+                        + " alertID INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,"
+                        + " attendeeID INT NOT NULL,"
+                        + " eventID INT NOT NULL,"
+                        + " remainingTickets INT NOT NULL,"
+                        + " lastAlertAt TIMESTAMP NOT NULL,"
+                        + " UNIQUE (attendeeID, eventID),"
+                        + " FOREIGN KEY (attendeeID) REFERENCES attendee(attendeeID),"
+                        + " FOREIGN KEY (eventID) REFERENCES event(eventID)"
+                        + ")");
+            }
+
+            if (!tableExists(conn, "EMAIL_CAMPAIGN_LOG")) {
+                st.execute("CREATE TABLE email_campaign_log ("
+                        + " campaignLogID INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,"
+                        + " campaignType VARCHAR(40) NOT NULL,"
+                        + " attendeeID INT,"
+                        + " eventID INT,"
+                        + " recipientEmail VARCHAR(120),"
+                        + " subject VARCHAR(200),"
+                        + " status VARCHAR(20) NOT NULL,"
+                        + " sentAt TIMESTAMP NOT NULL,"
+                        + " FOREIGN KEY (attendeeID) REFERENCES attendee(attendeeID),"
+                        + " FOREIGN KEY (eventID) REFERENCES event(eventID)"
+                        + ")");
+            }
         }
     }
 

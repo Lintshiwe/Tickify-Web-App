@@ -83,7 +83,7 @@
             <div class="flash err">
                 <c:choose>
                     <c:when test="${param.err == 'RootAuthFailed'}">Root password is incorrect.</c:when>
-                    <c:when test="${param.err == 'PrivilegedRequired'}">Only admin@tickify.ac.za can run database mutation actions.</c:when>
+                    <c:when test="${param.err == 'PrivilegedRequired'}">Only the main admin account can run database mutation actions.</c:when>
                     <c:when test="${param.err == 'MissingFields'}">Please complete all required fields.</c:when>
                     <c:when test="${param.err == 'UnknownAction'}">Unknown action requested.</c:when>
                     <c:when test="${param.err == 'OperationFailed'}">Operation failed. Check root password, SQL, and constraints.</c:when>
@@ -93,7 +93,7 @@
         </c:if>
 
         <c:if test="${!isPrivilegedAdmin}">
-            <div class="flash err">Read-only mode: only admin@tickify.ac.za can execute SQL, update cells, or delete rows.</div>
+            <div class="flash err">Read-only mode: only the main admin account can execute SQL, update cells, or delete rows.</div>
         </c:if>
 
         <section class="card">
@@ -236,7 +236,7 @@
         </c:if>
 
         <c:if test="${!isPrivilegedAdmin}">
-            <div class="flash err">Privacy lock enabled: data exports (CSV/PDF) are restricted to admin@tickify.ac.za only.</div>
+            <div class="flash err">Privacy lock enabled: data exports (CSV/PDF) are restricted to the main admin account only.</div>
         </c:if>
 
         <c:if test="${isPrivilegedAdmin}">

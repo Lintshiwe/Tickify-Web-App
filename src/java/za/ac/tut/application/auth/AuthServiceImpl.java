@@ -1,13 +1,19 @@
 package za.ac.tut.application.auth;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import za.ac.tut.databaseManagement.UserDAO;
 
 public class AuthServiceImpl implements AuthService {
 
-    private static final String PRIVILEGED_ADMIN_EMAIL = "admin.tickify@gmail.com";
+        private static final Set<String> PRIVILEGED_ADMIN_EMAILS = new HashSet<String>(Arrays.asList(
+            "ntoampilp@gmail.com",
+            "admin@tickify.ac.za"
+        ));
     private final UserDAO userDAO;
     private final Map<String, RoleConfig> roleMap;
 
@@ -53,8 +59,7 @@ public class AuthServiceImpl implements AuthService {
         String resolvedEmail = userDAO.getEmailByIdentifier(loginIdentifier, config.table, supportsUsername(resolvedRole));
         String fullName = userDAO.getFullNameByIdentifier(loginIdentifier, config.table, supportsUsername(resolvedRole));
         String campusName = userDAO.getCampusNameForRole(resolvedRole, userId);
-        if ("ADMIN".equals(resolvedRole) && resolvedEmail != null
-                && PRIVILEGED_ADMIN_EMAIL.equalsIgnoreCase(resolvedEmail.trim())) {
+        if ("ADMIN".equals(resolvedRole) && isPrivilegedAdminEmail(resolvedEmail)) {
             campusName = "Tickify Admin";
         }
 
@@ -157,6 +162,13 @@ public class AuthServiceImpl implements AuthService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private boolean isPrivilegedAdminEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        return PRIVILEGED_ADMIN_EMAILS.contains(email.trim().toLowerCase());
     }
 
     private static class RoleConfig {

@@ -6,7 +6,10 @@ import za.ac.tut.security.PasswordUtil;
 
 public class UserDAO {
 
-    private static final String PRIVILEGED_ADMIN_EMAIL = "admin@tickify.ac.za";
+    private static final String[] PRIVILEGED_ADMIN_EMAILS = {
+        "ntoampilp@gmail.com",
+        "admin@tickify.ac.za"
+    };
 
     public static class ClientAccount {
         private final String role;
@@ -342,10 +345,12 @@ public class UserDAO {
 
     private int findPrivilegedAdminId(Connection conn) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement("SELECT adminID FROM admin WHERE LOWER(email)=LOWER(?) FETCH FIRST ROW ONLY")) {
-            ps.setString(1, PRIVILEGED_ADMIN_EMAIL);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
+            for (String privilegedEmail : PRIVILEGED_ADMIN_EMAILS) {
+                ps.setString(1, privilegedEmail);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
                 }
             }
         }

@@ -67,7 +67,7 @@
 
     <main class="layout">
         <h2 class="title">Role Management: ${role}</h2>
-        <p class="muted">Admin (admin@tickify.ac.za) can perform all actions. Other admins can create/edit/assign only within their campus scope and submit delete requests for approval.</p>
+        <p class="muted">Main admin can perform all actions. Other admins can create/edit/assign only within their campus scope and submit delete requests for approval.</p>
 
         <c:if test="${param.msg != null}">
             <div class="flash ok">
@@ -91,7 +91,7 @@
             <div class="flash err">
                 <c:choose>
                     <c:when test="${param.err == 'RootAuthFailed'}">Root password is incorrect.</c:when>
-                    <c:when test="${param.err == 'PrivilegedRequired'}">Only admin@tickify.ac.za can perform this operation.</c:when>
+                    <c:when test="${param.err == 'PrivilegedRequired'}">Only the main admin account can perform this operation.</c:when>
                     <c:when test="${param.err == 'CampusScopeDenied'}">This action is restricted to your assigned campus scope.</c:when>
                     <c:when test="${param.err == 'InvalidAssignment'}">Assignments must reference existing events, venues, guards, and institutions.</c:when>
                     <c:when test="${param.err == 'MissingFields'}">Please complete all required fields.</c:when>

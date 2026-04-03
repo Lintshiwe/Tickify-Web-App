@@ -224,12 +224,21 @@ public class EventManagerDashboardDAO {
     }
 
     public int createConcertSeriesForManager(int eventManagerId) throws SQLException {
+        Map<String, Object> result = createConcertSeriesForManagerDetailed(eventManagerId);
+        Object total = result.get("totalTickets");
+        if (total instanceof Number) {
+            return ((Number) total).intValue();
+        }
+        return 0;
+    }
+
+    public Map<String, Object> createConcertSeriesForManagerDetailed(int eventManagerId) throws SQLException {
         long now = System.currentTimeMillis();
         int totalTickets = 0;
+        List<Integer> createdEventIds = new ArrayList<>();
 
         String[][] events = new String[][] {
             {"Neon Pulse Live", "Electronic Concert", "A high-energy electronic night with immersive visuals.", "https://tickify.live/events/neon-pulse"},
-            {"Acoustic Sunset Sessions", "Acoustic Concert", "An intimate acoustic evening with stripped-back performances.", "https://tickify.live/events/acoustic-sunset"},
             {"Campus Amp Festival", "Festival Concert", "A multi-artist campus festival featuring diverse live acts.", "https://tickify.live/events/campus-amp"}
         };
 
@@ -247,6 +256,7 @@ public class EventManagerDashboardDAO {
             if (eventId <= 0) {
                 continue;
             }
+            createdEventIds.add(eventId);
 
             byte[] poster = buildConcertPosterSvg(events[i][0], i).getBytes(java.nio.charset.StandardCharsets.UTF_8);
             updateAssignedEventAlbumImage(eventManagerId, eventId,
@@ -263,7 +273,10 @@ public class EventManagerDashboardDAO {
             }
         }
 
-        return totalTickets;
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalTickets", totalTickets);
+        result.put("eventIds", createdEventIds);
+        return result;
     }
 
     public boolean updateAssignedEventAlbumImage(int eventManagerId, int eventId, String filename,

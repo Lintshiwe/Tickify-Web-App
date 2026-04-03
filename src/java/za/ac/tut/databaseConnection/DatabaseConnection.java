@@ -17,6 +17,7 @@ public class DatabaseConnection {
 
     private static final String CLIENT_DRIVER_CLASS = "org.apache.derby.jdbc.ClientDriver";
     private static final String EMBEDDED_DRIVER_CLASS = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static final String EMBEDDED_AUTOLOAD_DRIVER_CLASS = "org.apache.derby.iapi.jdbc.AutoloadedDriver";
     private static final String CLIENT_JDBC_URL = "jdbc:derby://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME + ";create=true;ssl=off";
     private static final String EMBEDDED_JDBC_URL = "jdbc:derby:" + DB_NAME + ";create=true";
 
@@ -62,11 +63,41 @@ public class DatabaseConnection {
     }
 
     private static Connection connectEmbedded() throws SQLException {
+        ensureEmbeddedDriverRegistered();
         try {
             return DriverManager.getConnection(EMBEDDED_JDBC_URL, DB_USER, DB_PASSWORD);
         } catch (SQLException e) {
             System.err.println("Tickify SQL Error (embedded): " + e.getMessage() + " | State: " + e.getSQLState());
             throw e;
+        }
+    }
+
+    private static void ensureEmbeddedDriverRegistered() throws SQLException {
+        boolean driverFound = false;
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            String name = drivers.nextElement().getClass().getName();
+            if (EMBEDDED_DRIVER_CLASS.equals(name) || EMBEDDED_AUTOLOAD_DRIVER_CLASS.equals(name)) {
+                driverFound = true;
+                break;
+            }
+        }
+
+        if (driverFound) {
+            return;
+        }
+
+        try {
+            Class.forName(EMBEDDED_DRIVER_CLASS);
+            return;
+        } catch (ClassNotFoundException ignored) {
+            // Fall through to Derby versions that expose the autoloaded driver only.
+        }
+
+        try {
+            Class.forName(EMBEDDED_AUTOLOAD_DRIVER_CLASS);
+        } catch (ClassNotFoundException ex) {
+            throw new SQLException("Unable to load Derby embedded driver", ex);
         }
     }
 

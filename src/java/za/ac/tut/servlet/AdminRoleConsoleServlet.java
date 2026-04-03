@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import za.ac.tut.application.admin.AdminITService;
+import za.ac.tut.notification.EmailService;
 
 public class AdminRoleConsoleServlet extends HttpServlet {
 
@@ -18,6 +19,7 @@ public class AdminRoleConsoleServlet extends HttpServlet {
     ));
 
     private final AdminITService adminITService = new AdminITService();
+    private final EmailService emailService = new EmailService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -187,27 +189,55 @@ public class AdminRoleConsoleServlet extends HttpServlet {
         String lastName = req(request, "lastName");
         String email = normalizeToGmail(req(request, "email"));
         String password = req(request, "password");
+        String resetLink = buildClientPasswordResetLink(request);
 
         switch (role) {
             case "ADMIN":
                 adminITService.repo().createAdmin(adminId, firstName, lastName, email, password, parseInt(req(request, "eventID")));
+                sendRoleAssignmentEmailSilently(email, firstName, role, password, resetLink);
                 break;
             case "VENUE_GUARD":
                 adminITService.repo().createGuard(adminId, firstName, lastName, email, password,
                         parseInt(req(request, "eventID")), parseInt(req(request, "venueID")));
+                sendRoleAssignmentEmailSilently(email, firstName, role, password, resetLink);
                 break;
             case "EVENT_MANAGER":
                 adminITService.repo().createManager(adminId, firstName, lastName, email, password,
                         parseInt(req(request, "venueGuardID")));
+                sendRoleAssignmentEmailSilently(email, firstName, role, password, resetLink);
                 break;
             case "TERTIARY_PRESENTER":
                 adminITService.repo().createPresenter(adminId, firstName, lastName, email, password,
                         req(request, "tertiaryInstitution"),
                         parseInt(req(request, "eventID")), parseInt(req(request, "venueID")));
+                sendRoleAssignmentEmailSilently(email, firstName, role, password, resetLink);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported role");
         }
+    }
+
+    private void sendRoleAssignmentEmailSilently(String email, String firstName, String role,
+            String temporaryPassword, String resetLink) {
+        try {
+            emailService.sendRoleAssignmentEmail(email, firstName, role, temporaryPassword, resetLink);
+        } catch (Exception ex) {
+            log("Role assignment email failed for " + email + " and role " + role, ex);
+        }
+    }
+
+    private String buildClientPasswordResetLink(HttpServletRequest request) {
+        String context = request.getContextPath();
+        if (context == null || context.isEmpty()) {
+            context = "/";
+        }
+        if (!context.endsWith("/")) {
+            context = context + "/";
+        }
+        String port = (request.getServerPort() == 80 || request.getServerPort() == 443)
+                ? ""
+                : ":" + request.getServerPort();
+        return request.getScheme() + "://" + request.getServerName() + port + context + "ClientPasswordReset.jsp";
     }
 
     private void populateRoleModel(HttpServletRequest request, String role) throws SQLException {

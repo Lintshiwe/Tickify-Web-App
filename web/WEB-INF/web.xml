@@ -148,6 +148,18 @@
         <servlet-name>SessionHeartbeatServlet</servlet-name>
         <servlet-class>za.ac.tut.servlet.SessionHeartbeatServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AttendeeSubscriptionServlet</servlet-name>
+        <servlet-class>za.ac.tut.servlet.AttendeeSubscriptionServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UnsubscribeServlet</servlet-name>
+        <servlet-class>za.ac.tut.servlet.UnsubscribeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TicketDownloadServlet</servlet-name>
+        <servlet-class>za.ac.tut.servlet.TicketDownloadServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet.do</url-pattern>
@@ -263,6 +275,18 @@
     <servlet-mapping>
         <servlet-name>SessionHeartbeatServlet</servlet-name>
         <url-pattern>/SessionHeartbeat.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AttendeeSubscriptionServlet</servlet-name>
+        <url-pattern>/AttendeeSubscription.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UnsubscribeServlet</servlet-name>
+        <url-pattern>/Unsubscribe.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TicketDownloadServlet</servlet-name>
+        <url-pattern>/TicketDownload.do</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>403</error-code>

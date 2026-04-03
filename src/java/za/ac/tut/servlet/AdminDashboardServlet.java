@@ -67,6 +67,7 @@ public class AdminDashboardServlet extends HttpServlet {
         String action = param(request, "action");
         Object adminIdObj = request.getSession().getAttribute("userID");
         int adminId = adminIdObj instanceof Integer ? (Integer) adminIdObj : 0;
+        String clientPasswordResetLink = buildClientPasswordResetLink(request);
         boolean isPrivilegedAdmin = false;
         try {
             isPrivilegedAdmin = adminITService.repo().isPrivilegedAdmin(adminId);
@@ -76,14 +77,19 @@ public class AdminDashboardServlet extends HttpServlet {
             }
 
             if ("createAdmin".equals(action)) {
+                String firstName = req(request, "firstName");
+                String lastName = req(request, "lastName");
+                String email = req(request, "email").toLowerCase();
+                String temporaryPassword = req(request, "password");
                 adminITService.repo().createAdmin(
                         adminId,
-                        req(request, "firstName"),
-                        req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
-                        req(request, "password"),
+                    firstName,
+                    lastName,
+                    email,
+                    temporaryPassword,
                         parseInt(req(request, "eventID"))
                 );
+                sendRoleAssignmentEmailSilently(email, firstName, "ADMIN", temporaryPassword, clientPasswordResetLink);
                 redirectWithMsg(request, response, "UserCreated");
                 return;
             }
@@ -113,55 +119,75 @@ public class AdminDashboardServlet extends HttpServlet {
             }
 
             if ("createGuard".equals(action)) {
+                String firstName = req(request, "firstName");
+                String lastName = req(request, "lastName");
+                String email = req(request, "email").toLowerCase();
+                String temporaryPassword = req(request, "password");
                 adminITService.repo().createGuard(
                         adminId,
-                        req(request, "firstName"),
-                        req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
-                        req(request, "password"),
+                    firstName,
+                    lastName,
+                    email,
+                        temporaryPassword,
                         parseInt(req(request, "eventID")),
                         parseInt(req(request, "venueID"))
                 );
+                sendRoleAssignmentEmailSilently(email, firstName, "VENUE_GUARD", temporaryPassword, clientPasswordResetLink);
                 redirectWithMsg(request, response, "UserCreated");
                 return;
             }
 
             if ("provisionGuard".equals(action)) {
+                String firstName = req(request, "firstName");
+                String lastName = req(request, "lastName");
+                String email = req(request, "email").toLowerCase();
+                String temporaryPassword = req(request, "password");
                 adminITService.repo().createGuard(
                         adminId,
-                        req(request, "firstName"),
-                        req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
-                        req(request, "password"),
+                    firstName,
+                    lastName,
+                    email,
+                        temporaryPassword,
                         parseInt(req(request, "eventID")),
                         parseInt(req(request, "venueID"))
                 );
+                sendRoleAssignmentEmailSilently(email, firstName, "VENUE_GUARD", temporaryPassword, clientPasswordResetLink);
                 redirectWithMsg(request, response, "GuardProvisioned");
                 return;
             }
 
             if ("createManager".equals(action)) {
+                String firstName = req(request, "firstName");
+                String lastName = req(request, "lastName");
+                String email = req(request, "email").toLowerCase();
+                String temporaryPassword = req(request, "password");
                 adminITService.repo().createManager(
                         adminId,
-                        req(request, "firstName"),
-                        req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
-                        req(request, "password"),
+                    firstName,
+                    lastName,
+                    email,
+                        temporaryPassword,
                         parseInt(req(request, "venueGuardID"))
                 );
+                sendRoleAssignmentEmailSilently(email, firstName, "EVENT_MANAGER", temporaryPassword, clientPasswordResetLink);
                 redirectWithMsg(request, response, "UserCreated");
                 return;
             }
 
             if ("provisionManager".equals(action)) {
+                String firstName = req(request, "firstName");
+                String lastName = req(request, "lastName");
+                String email = req(request, "email").toLowerCase();
+                String temporaryPassword = req(request, "password");
                 adminITService.repo().createManager(
                         adminId,
-                        req(request, "firstName"),
-                        req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
-                        req(request, "password"),
+                    firstName,
+                    lastName,
+                    email,
+                        temporaryPassword,
                         parseInt(req(request, "venueGuardID"))
                 );
+                sendRoleAssignmentEmailSilently(email, firstName, "EVENT_MANAGER", temporaryPassword, clientPasswordResetLink);
                 redirectWithMsg(request, response, "ManagerProvisioned");
                 return;
             }
@@ -255,16 +281,21 @@ public class AdminDashboardServlet extends HttpServlet {
             }
 
             if ("createPresenter".equals(action)) {
+                String firstName = req(request, "firstName");
+                String lastName = req(request, "lastName");
+                String email = req(request, "email").toLowerCase();
+                String temporaryPassword = req(request, "password");
                 adminITService.repo().createPresenter(
                         adminId,
-                        req(request, "firstName"),
-                        req(request, "lastName"),
-                        req(request, "email").toLowerCase(),
-                        req(request, "password"),
+                    firstName,
+                    lastName,
+                    email,
+                        temporaryPassword,
                         req(request, "tertiaryInstitution"),
                         parseInt(req(request, "eventID")),
                         parseInt(req(request, "venueID"))
                 );
+                sendRoleAssignmentEmailSilently(email, firstName, "TERTIARY_PRESENTER", temporaryPassword, clientPasswordResetLink);
                 redirectWithMsg(request, response, "UserCreated");
                 return;
             }
@@ -801,6 +832,29 @@ public class AdminDashboardServlet extends HttpServlet {
 
     private void redirectWithErr(HttpServletRequest request, HttpServletResponse response, String err) throws IOException {
         response.sendRedirect(request.getContextPath() + "/AdminDashboard.do?err=" + err);
+    }
+
+    private void sendRoleAssignmentEmailSilently(String email, String firstName, String role,
+            String temporaryPassword, String resetLink) {
+        try {
+            emailService.sendRoleAssignmentEmail(email, firstName, role, temporaryPassword, resetLink);
+        } catch (Exception ex) {
+            log("Role assignment email failed for " + email + " and role " + role, ex);
+        }
+    }
+
+    private String buildClientPasswordResetLink(HttpServletRequest request) {
+        String context = request.getContextPath();
+        if (context == null || context.isEmpty()) {
+            context = "/";
+        }
+        if (!context.endsWith("/")) {
+            context = context + "/";
+        }
+        String port = (request.getServerPort() == 80 || request.getServerPort() == 443)
+                ? ""
+                : ":" + request.getServerPort();
+        return request.getScheme() + "://" + request.getServerName() + port + context + "ClientPasswordReset.jsp";
     }
 
     private Timestamp parseDateTimeLocal(String value) {

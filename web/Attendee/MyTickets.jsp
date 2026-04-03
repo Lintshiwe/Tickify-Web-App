@@ -188,6 +188,26 @@
             display:block;
             margin:6px 0 8px;
         }
+        .qr-redacted {
+            position:relative;
+        }
+        .qr-redacted img {
+            filter:blur(9px) grayscale(1) brightness(.6);
+        }
+        .qr-redacted .qr-redaction-note {
+            display:block;
+            margin-top:6px;
+            padding:6px 8px;
+            border-radius:8px;
+            background:#ffeaea;
+            border:1px solid #f2b7b7;
+            color:#8f1f1f;
+            font-size:.78rem;
+            font-family:"Trebuchet MS","Segoe UI",sans-serif;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+        }
         @media print {
             @page {
                 size:A4 landscape;
@@ -223,7 +243,7 @@
                 <div class="muted">Generated after payment with unique ticket numbers and QR payloads for security verification.</div>
             </div>
             <div class="head-actions">
-                <button type="button" class="btn-action" onclick="downloadAllTicketsPdf()">Download All Tickets PDF</button>
+                <a class="btn-action" style="display:inline-block;text-decoration:none;" href="${pageContext.request.contextPath}/TicketDownload.do?scope=all&fresh=true">Download All Tickets PDF</a>
                 <a class="btn" href="${pageContext.request.contextPath}/MyOrderHistory.do">My Order History</a>
                 <% if (popupMode) { %>
                     <button type="button" class="btn-secondary" onclick="window.close()">Close Window</button>
@@ -234,6 +254,16 @@
         </div>
 
         <% String msg = request.getParameter("msg"); %>
+        <% String purchaseConfirmationMessage = (String) session.getAttribute("purchaseConfirmationMessage"); %>
+        <% String purchaseEmailStatus = (String) session.getAttribute("purchaseEmailStatus"); %>
+        <% if (purchaseConfirmationMessage != null) { %>
+            <div class="flash"><%= purchaseConfirmationMessage %></div>
+        <% } %>
+        <% if (purchaseEmailStatus != null && "FAILED".equals(purchaseEmailStatus)) { %>
+            <div class="flash" style="background:#fff1ef;color:#912018;border-color:#f0c2c2;">Payment succeeded, but email confirmation could not be delivered right now. Your tickets are saved below.</div>
+        <% } %>
+        <% session.removeAttribute("purchaseConfirmationMessage"); %>
+        <% session.removeAttribute("purchaseEmailStatus"); %>
         <% if ("PaymentSuccess".equals(msg)) { %>
             <div class="flash">Payment successful. Your tickets were generated and saved to your profile.</div>
         <% } else if ("CheckoutPartial".equals(msg)) { %>
@@ -242,7 +272,7 @@
 
         <div class="tickets">
             <c:forEach var="t" items="${tickets}" varStatus="status">
-                <article class="ticket" id="ticket-${status.index}" data-attendee="${t.attendeeName}">
+                <article class="ticket" id="ticket-${status.index}" data-attendee="${t.attendeeName}" data-event-id="${t.eventID}">
                     <div class="ticket-watermark">
                         <img src="${tickifyLogoUrl}" alt="" onerror="this.style.display='none';">
                     </div>
@@ -257,8 +287,7 @@
                         <div class="content">
                             <div class="event-hero">
                                 <div class="album-art">
-                                    <img src="EventAlbumImage.do?eventID=${t.eventID}" alt="${t.eventName} album" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
-                                    <span class="album-art-label">EVENT ALBUM</span>
+                                    <img src="EventAlbumImage.do?eventID=${t.eventID}" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
                                 </div>
                                 <div class="hero-meta">
                                     <h3 class="meta-title">${t.eventName}</h3>
@@ -278,7 +307,7 @@
                             <div class="slot" style="margin-top:6px;"><strong>Client Email</strong><span>${t.attendeeEmail}</span></div>
 
                             <div class="ticket-actions">
-                                <button type="button" class="btn-action" onclick="downloadSingleTicketPdf('ticket-${status.index}')">Download Ticket PDF</button>
+                                <a class="btn-action download-ticket-link" style="display:inline-block;text-decoration:none;" href="${pageContext.request.contextPath}/TicketDownload.do?scope=single&ticketID=${t.ticketID}&fresh=true" data-ticket-id="${t.ticketID}">Download Ticket PDF</a>
                             </div>
                         </div>
                         <div class="ticket-side">
@@ -286,6 +315,7 @@
                                 <strong style="display:block;font-family:inherit;margin-bottom:4px;color:#1f2b1d;">SITE QR CODE</strong>
                                 <img class="qr-image" data-qr="${t.scannableCode}" alt="Ticket QR code for ${t.ticketNumber}">
                                 ${t.scannableCode}
+                                <span class="qr-redaction-note" style="display:none;">Screenshot blocked and flagged</span>
                             </div>
                         </div>
                     </div>
@@ -312,133 +342,67 @@
             }
         }
 
-        function buildPrintableDocument(contentHtml, titleText) {
-            return "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>" + titleText
-                + "</title><style>"
-                + "@page{size:A4 landscape;margin:10mm;}"
-                + "html,body{width:100%;height:auto;}"
-                + "body{font-family:Trebuchet MS,Segoe UI,sans-serif;margin:0;color:#223028;background:#fff;}"
-                + ".ticket{width:100%;max-width:none;margin:0 0 8mm 0;border:1px solid #d7e2d1;border-radius:14px;overflow:hidden;position:relative;}"
-                + ".ticket-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;}"
-                + ".ticket-watermark img{width:min(68%,620px);max-height:72%;object-fit:contain;opacity:.14;filter:grayscale(1) contrast(1.1);}"
-                + ".ticket>*:not(.ticket-watermark){position:relative;z-index:1;}"
-                + ".ticket:before,.ticket:after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:14px;height:14px;border-radius:50%;background:#fff;border:1px solid #d7e2d1;}"
-                + ".ticket:before{left:-7px;}"
-                + ".ticket:after{right:-7px;}"
-                + ".album{background:linear-gradient(120deg,#e9f4e2,#f6fbf3 60%);padding:10px 12px;border-bottom:1px solid #e3eddc;display:flex;justify-content:space-between;align-items:center;}"
-                + ".album img{height:34px;display:block;width:auto;}"
-                + ".badge{background:#edf5e8;color:#5da72f;border-radius:999px;padding:4px 8px;font-weight:800;font-size:.8rem;}"
-                + ".auth-badge{margin-left:8px;display:inline-block;background:linear-gradient(130deg,#173f8f,#2a5ec7 60%,#f7a531);color:#fff;border-radius:999px;padding:5px 8px;font-size:.68rem;font-weight:900;letter-spacing:.04em;}"
-                + ".ticket-body{display:grid;grid-template-columns:1.75fr 1fr;gap:10px;padding:10px 12px;}"
-                + ".content{display:grid;gap:6px;}"
-                + ".ticket-side{border-left:1px dashed #d3dfcd;padding:10px 10px 10px 12px;display:flex;align-items:center;background:linear-gradient(160deg,#9be552,#f8de57 58%,#f7a531);border-top-right-radius:12px;border-bottom-right-radius:12px;}"
-                + ".event-hero{display:grid;grid-template-columns:170px 1fr;gap:10px;align-items:stretch;}"
-                + ".album-art{border-radius:12px;border:1px solid #d4e2cc;position:relative;min-height:124px;overflow:hidden;background:radial-gradient(circle at 12% 20%, #ffffffcc 0 12%, transparent 13%),linear-gradient(150deg,#1f2c1e 0%,#2c4a26 40%,#79c84a 100%);}"
-                + ".album-art img{width:100%;height:100%;min-height:124px;object-fit:cover;display:block;}"
-                + ".album-art:after{content:'';position:absolute;right:-24px;bottom:-28px;width:120px;height:120px;border-radius:50%;background:rgba(248, 222, 87, .35);}"
-                + ".album-art-label{position:absolute;left:8px;bottom:8px;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.58);color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.04em;}"
-                + ".hero-meta{border:1px solid #dbe6d5;border-radius:12px;padding:8px;background:#fbfdf9;display:grid;align-content:center;gap:4px;}"
-                + ".title{margin:0;font-size:1.15rem;}"
-                + ".muted{color:#5d6a60;}"
-                + ".grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;}"
-                + ".slot{border:1px dashed #d9e5d3;border-radius:10px;padding:8px;}"
-                + ".slot strong{display:block;font-size:.83rem;color:#5d6a60;}"
-                + ".slot span{font-weight:800;color:#223028;word-break:break-word;}"
-                + ".qr{border:1px solid #d7e2d1;border-radius:12px;padding:8px;margin-top:6px;background:repeating-linear-gradient(45deg,#f4faf0,#f4faf0 8px,#edf6e8 8px,#edf6e8 16px);font-family:Consolas,Courier New,monospace;font-size:.82rem;word-break:break-all;overflow-wrap:anywhere;}"
-                + ".qr img{width:156px;height:156px;border:1px solid #d5e2cf;border-radius:10px;background:#fff;display:block;margin:6px 0 8px;}"
-                + ".ticket-actions{display:none !important;}"
-                + "@media print{.ticket{break-inside:avoid;page-break-inside:avoid;}}"
-                + "</style></head><body>"
-                + contentHtml
-                + "<script>(function(){"
-                + "var fired=false;"
-                + "function done(){if(fired)return;fired=true;window.print();}"
-                + "var imgs=document.images;"
-                + "if(!imgs||imgs.length===0){setTimeout(done,200);return;}"
-                + "var pending=0;"
-                + "for(var i=0;i<imgs.length;i++){if(!imgs[i].complete){pending++;imgs[i].addEventListener('load',function(){pending--;if(pending<=0)done();});imgs[i].addEventListener('error',function(){pending--;if(pending<=0)done();});}}"
-                + "if(pending===0){setTimeout(done,200);}"
-                + "setTimeout(done,2200);"
-                + "})();<\/script>"
-                + "</body></html>";
-        }
-
-        function sanitizeFilenamePart(value) {
-            var safe = (value || "ticket").trim();
-            safe = safe.replace(/\s+/g, "_");
-            safe = safe.replace(/[^a-zA-Z0-9_\-]/g, "");
-            return safe || "ticket";
-        }
-
-        function buildPrintableTicketHtml(card) {
-            if (!card) {
-                return "";
-            }
-            var clone = card.cloneNode(true);
-            var actionBlocks = clone.querySelectorAll('.ticket-actions');
-            for (var i = 0; i < actionBlocks.length; i++) {
-                actionBlocks[i].remove();
-            }
-
-            var imgs = clone.querySelectorAll('img');
-            for (var j = 0; j < imgs.length; j++) {
-                var src = imgs[j].getAttribute('src');
-                if (src) {
-                    imgs[j].setAttribute('src', new URL(src, window.location.href).href);
-                }
-            }
-            return clone.outerHTML;
-        }
-
-        function resolveUsername(card) {
-            if (card && card.dataset && card.dataset.attendee) {
-                return card.dataset.attendee;
-            }
-            var firstCard = document.querySelector(".tickets .ticket[data-attendee]");
-            if (firstCard && firstCard.dataset && firstCard.dataset.attendee) {
-                return firstCard.dataset.attendee;
-            }
-            return "user";
-        }
-
-        function openPdfPrintWindow(contentHtml, titleText, username) {
-            var popup = window.open("", "_blank", "width=980,height=820,resizable=yes,scrollbars=yes");
-            if (!popup) {
-                alert("Popup blocked. Please allow popups for this site to download PDF.");
-                return;
-            }
-            var safeName = sanitizeFilenamePart(username);
-            var finalTitle = titleText + "_" + safeName;
-            popup.document.open();
-            popup.document.write(buildPrintableDocument(contentHtml, finalTitle));
-            popup.document.close();
-        }
-
-        function downloadSingleTicketPdf(ticketId) {
-            var card = document.getElementById(ticketId);
-            if (!card) {
-                return;
-            }
-            ensureQrImagesRendered(document);
-            var username = resolveUsername(card);
-            var printable = buildPrintableTicketHtml(card);
-            openPdfPrintWindow(printable, "Tickify_Ticket", username);
-        }
-
-        function downloadAllTicketsPdf() {
-            var cards = document.querySelectorAll(".tickets .ticket");
-            if (!cards || cards.length === 0) {
-                alert("No tickets available to download.");
-                return;
-            }
-            ensureQrImagesRendered(document);
-            var html = "";
+        function redactQrOnScreenshotAttempt(reason) {
+            var cards = document.querySelectorAll('.ticket[data-event-id]');
+            var eventFlags = {};
             for (var i = 0; i < cards.length; i++) {
-                html += buildPrintableTicketHtml(cards[i]);
+                var qr = cards[i].querySelector('.qr');
+                if (!qr) {
+                    continue;
+                }
+                qr.classList.add('qr-redacted');
+                var note = qr.querySelector('.qr-redaction-note');
+                if (note) {
+                    note.style.display = 'block';
+                }
+                var eventId = cards[i].getAttribute('data-event-id');
+                if (eventId) {
+                    eventFlags[eventId] = true;
+                }
+
+                cards[i].querySelectorAll('.download-ticket-link').forEach(function (link) {
+                    if (!link || !link.href) { return; }
+                    try {
+                        var u = new URL(link.href, window.location.origin);
+                        u.searchParams.set('flagged', 'true');
+                        u.searchParams.delete('fresh');
+                        link.href = u.pathname + '?' + u.searchParams.toString();
+                    } catch (e) {
+                    }
+                });
             }
-            var username = resolveUsername(cards[0]);
-            openPdfPrintWindow(html, "Tickify_Tickets", username);
+
+            Object.keys(eventFlags).forEach(function (eventId) {
+                try {
+                    var body = "eventID=" + encodeURIComponent(eventId)
+                        + "&action=" + encodeURIComponent('SCREENSHOT_ATTEMPT')
+                        + "&channel=" + encodeURIComponent(reason || 'MY_TICKETS');
+                    fetch('EventEngagement.do', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                        body: body,
+                        keepalive: true
+                    });
+                } catch (e) {
+                }
+            });
         }
+
+        document.addEventListener('keydown', function (event) {
+            if (event && (event.key === 'PrintScreen' || event.code === 'PrintScreen')) {
+                redactQrOnScreenshotAttempt('PRINTSCREEN_KEY');
+            }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') {
+                redactQrOnScreenshotAttempt('VISIBILITY_HIDDEN');
+            }
+        });
+
+        window.addEventListener('blur', function () {
+            redactQrOnScreenshotAttempt('WINDOW_BLUR');
+        });
 
         ensureQrImagesRendered(document);
     </script>

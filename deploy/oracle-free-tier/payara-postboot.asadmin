@@ -1,0 +1,1 @@
+set-log-levels javax.enterprise.system.security.ssl=SEVERE
