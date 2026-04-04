@@ -14,8 +14,7 @@
             .site-footer { margin-top:auto; background:#050607; color:#d8dee7; padding:28px 22px 16px; }
             .site-footer a { color:#d8dee7; text-decoration:none; }
             .footer-bottom { border-top:1px solid #2a2f36; margin-top:16px; padding-top:12px; max-width:1200px; margin-left:auto; margin-right:auto; color:#98a4b2; font-size:.9rem; }
-            .footer-bottom .builder-label { color:#d8dee7; font-weight:700; }
-            .footer-bottom .owner-link { display:inline-block; margin-top:4px; color:#9be552; font-weight:800; text-decoration:underline; }
+            .footer-bottom .builder-label { color:#9be552; font-weight:800; text-decoration:underline; }
             .yellow { color:var(--green-dark); }
             main { flex:1; display:grid; place-items:center; padding:20px; }
             .form-container { width:min(560px,100%); background:#fff; border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:0 16px 30px rgba(90,130,90,.1); }
@@ -112,8 +111,7 @@
         </main>
         <footer class="site-footer">
             <div class="footer-bottom">
-                <span class="builder-label">Built by Letsoperate</span><br>
-                <a class="owner-link" href="https://letsoperate.vercel.app/" target="_blank" rel="noopener noreferrer">Letsoperate</a>
+                <a class="builder-label" href="https://letsoperate.vercel.app/" target="_blank" rel="noopener noreferrer">Built by Letsoperate</a>
                 <br>
                 <span>2026 &copy; Tickify | Owned by Letsoperate organization</span>
             </div>
