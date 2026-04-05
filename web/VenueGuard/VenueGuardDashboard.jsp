@@ -4,6 +4,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
     <title>Tickify | Security Scanner</title>
     <style>
@@ -229,7 +232,9 @@
             </table>
         </section>
     </div>
+    <script defer src="${pageContext.request.contextPath}/assets/jsQR.min.js?v=20260405"></script>
     <script>
+        const JS_QR_SRC = "${pageContext.request.contextPath}/assets/jsQR.min.js?v=20260405";
         const csrfToken = "${sessionScope.csrfToken}";
         const recentResults = [];
         const cameraFeed = document.getElementById("cameraFeed");
@@ -238,7 +243,6 @@
         const cameraHint = document.getElementById("cameraHint");
         const hasBarcodeDetector = "BarcodeDetector" in window;
         const qrDetector = hasBarcodeDetector ? new BarcodeDetector({formats: ["qr_code"]}) : null;
-        const hasJsQr = false;
         const isiPhone = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
         let cameraStream = null;
         let cameraScanRaf = null;
@@ -247,7 +251,42 @@
         let lastDetectAt = 0;
         let scannerFallbackTimer = null;
         let scannerAppOpened = false;
-        if (!hasBarcodeDetector && !hasJsQr) {
+        let jsQrLoaderPromise = null;
+
+        function hasJsQrAvailable() {
+            return typeof window.jsQR === "function";
+        }
+
+        function ensureJsQrLoaded() {
+            if (hasJsQrAvailable()) {
+                return Promise.resolve(true);
+            }
+
+            if (jsQrLoaderPromise) {
+                return jsQrLoaderPromise;
+            }
+
+            jsQrLoaderPromise = new Promise(function (resolve) {
+                var existing = document.querySelector('script[data-qr-lib="jsqr"]');
+                if (existing) {
+                    existing.addEventListener("load", function () { resolve(hasJsQrAvailable()); }, { once: true });
+                    existing.addEventListener("error", function () { resolve(false); }, { once: true });
+                    return;
+                }
+
+                var script = document.createElement("script");
+                script.src = JS_QR_SRC;
+                script.async = true;
+                script.setAttribute("data-qr-lib", "jsqr");
+                script.onload = function () { resolve(hasJsQrAvailable()); };
+                script.onerror = function () { resolve(false); };
+                document.head.appendChild(script);
+            });
+
+            return jsQrLoaderPromise;
+        }
+
+        if (!hasBarcodeDetector && !hasJsQrAvailable()) {
             cameraHint.textContent = "Use any option below to validate tickets (manual, camera, scanner app, or image upload).";
         }
 
@@ -438,6 +477,9 @@
         }
 
         async function startNativeCameraScan() {
+            // Try to load JS QR decoder so iOS/mobile can auto-detect even without BarcodeDetector.
+            await ensureJsQrLoaded();
+
             if (!isSecureCameraContext()) {
                 cameraHint.textContent = "Live camera requires HTTPS on iPhone Safari. Opening photo/camera capture fallback now.";
                 const captureInput = document.getElementById("qrImageInput");
@@ -480,13 +522,13 @@
                 cameraFeed.srcObject = cameraStream;
                 cameraFeed.style.display = "block";
                 await cameraFeed.play();
-                if (hasBarcodeDetector || hasJsQr) {
+                if (hasBarcodeDetector || hasJsQrAvailable()) {
                     cameraHint.textContent = "Camera active. Point at a QR code to auto-validate.";
                     scanningActive = true;
                     hasDetectedQr = false;
                     startDetectionLoop();
                 } else {
-                    cameraHint.textContent = "Camera active. Auto QR detection is unavailable here; use manual code input or upload a QR image.";
+                    cameraHint.textContent = "Camera active, but QR engine did not load. Refresh this page once and retry Start Camera Scan.";
                 }
             } catch (e) {
                 cameraHint.textContent = "Unable to access camera. On Safari, allow camera permission and disable Private Browsing restrictions if enabled.";
@@ -545,7 +587,7 @@
                     }
                 }
 
-                if (!rawValue && hasJsQr && cameraFeed.videoWidth && cameraFeed.videoHeight) {
+                if (!rawValue && hasJsQrAvailable() && cameraFeed.videoWidth && cameraFeed.videoHeight) {
                     scanCanvas.width = cameraFeed.videoWidth;
                     scanCanvas.height = cameraFeed.videoHeight;
                     scanCtx.drawImage(cameraFeed, 0, 0, scanCanvas.width, scanCanvas.height);
@@ -563,7 +605,9 @@
             } catch (e) {}
         }
 
-        function scanUploadedImage() {
+        async function scanUploadedImage() {
+            await ensureJsQrLoaded();
+
             const input = document.getElementById("qrImageInput");
             const file = input.files && input.files[0];
             if (!file) {
@@ -585,7 +629,7 @@
                             }
                         }
 
-                        if (!decodedValue && hasJsQr) {
+                        if (!decodedValue && hasJsQrAvailable()) {
                             scanCanvas.width = img.width;
                             scanCanvas.height = img.height;
                             scanCtx.drawImage(img, 0, 0, img.width, img.height);

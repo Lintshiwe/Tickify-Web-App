@@ -49,7 +49,7 @@ public class AuthzFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        String uri = req.getRequestURI().substring(req.getContextPath().length());
+        String uri = normalizeUri(req.getRequestURI(), req.getContextPath());
         if (isPublic(uri)) {
             chain.doFilter(request, response);
             return;
@@ -92,7 +92,28 @@ public class AuthzFilter implements Filter {
         if (PUBLIC_PATHS.contains(uri)) {
             return true;
         }
+        // Support proxy/context variations where request URI may still include app prefix.
+        for (String publicPath : PUBLIC_PATHS) {
+            if (uri.endsWith(publicPath)) {
+                return true;
+            }
+        }
         return uri.startsWith("/javax.faces.resource/") || uri.startsWith("/resources/");
+    }
+
+    private String normalizeUri(String requestUri, String contextPath) {
+        String uri = requestUri == null ? "/" : requestUri;
+
+        if (contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath)) {
+            uri = uri.substring(contextPath.length());
+        }
+
+        int pathParamStart = uri.indexOf(';');
+        if (pathParamStart >= 0) {
+            uri = uri.substring(0, pathParamStart);
+        }
+
+        return uri.isEmpty() ? "/" : uri;
     }
 
     private String resolveRequiredRole(String uri) {
